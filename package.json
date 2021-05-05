@@ -1,0 +1,26 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "[![Actions Status](https://github.com/Kassy-8/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/Kassy-8/frontend-project-lvl3/actions)",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kassy-8/frontend-project-lvl3.git"
+  },
+  "author": "Kassy-8",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kassy-8/frontend-project-lvl3/issues"
+  },
+  "homepage": "https://github.com/Kassy-8/frontend-project-lvl3#readme",
+  "devDependencies": {
+    "eslint": "^7.25.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "jest": "^26.6.3"
+  }
+}
