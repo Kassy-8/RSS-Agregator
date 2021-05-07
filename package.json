@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "make test"
+    "test": ""
   },
   "repository": {
     "type": "git",
