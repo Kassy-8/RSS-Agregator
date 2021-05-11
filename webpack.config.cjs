@@ -16,6 +16,9 @@ module.exports = {
       template: 'index.html',
     }),
   ],
+  devServer: {
+    contentBase: './dist',
+  },
   output: {
     clean: true,
   },

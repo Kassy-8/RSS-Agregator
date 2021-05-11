@@ -6,3 +6,5 @@ push:
 	git push -u origin main
 build:
 	NODE_ENV=production npx webpack
+develop:
+	npx webpack serve
