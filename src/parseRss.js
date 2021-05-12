@@ -1,6 +1,7 @@
 export default (data) => {
   const domParser = new DOMParser();
   const domObject = domParser.parseFromString(data, 'text/html');
+
   console.log('domObject', domObject);
   const title = domObject.querySelector('title').textContent;
   console.log('title', title.textContent);

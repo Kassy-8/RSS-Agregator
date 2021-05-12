@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import axios from 'axios';
-import parseRss from './parseRss.js';
 import _ from 'lodash';
+import parseRss from './parseRss.js';
 
 const errorMessages = {
   incorrectUrl: 'Некорректный url',
@@ -35,9 +35,9 @@ export default () => {
     linkList: [],
     feedList: [],
     topics: [],
-    networkError: [],
+    networkError: null,
     form: {
-      status: 'filing',
+      status: 'filling',
       validation: {
         valid: true,
         error: null,
@@ -50,9 +50,9 @@ export default () => {
     input: document.querySelector('#url'),
     submit: document.querySelector('.btn[type="submit"]'),
   };
-/*
+  /*
 здесь будет обертка стейта в вотчд стейт
-*/
+  */
 
   elements.form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -83,14 +83,24 @@ export default () => {
         console.log('rssData', rssData);
         return rssData;
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        // здесь кэтч для ошибок сети
+        state.networkError = err;
+        console.log(err);
+      })
       .then((rssData) => {
         const id = _.uniqueId();
         const { title, description, topics } = rssData;
         const newFeed = { id, title, description };
-        topics.id = id;
+        const newTopics = { id, topics };
         state.feedList.push(newFeed);
-        state.topics.push(topics);
+        state.topics.push(newTopics);
+        console.log('state', state);
+      })
+      .catch(() => {
+        // кэтч для ошибок в случае если по ссылке находится не рсс формат
+        // но парсер все равно форматировал данные
+        console.log('this is nor rss url');
       });
   });
 };
