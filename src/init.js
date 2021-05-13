@@ -2,9 +2,10 @@ import * as yup from 'yup';
 import axios from 'axios';
 import _ from 'lodash';
 import parseRss from './parseRss.js';
+import initView from './view.js';
 
 const errorMessages = {
-  incorrectUrl: 'Некорректный url',
+  incorrectUrl: 'Некорректный url BAD BAD',
   duplicateUrl: 'Url уже присутствует в списке фидов',
 };
 
@@ -34,7 +35,7 @@ export default () => {
   const state = {
     linkList: [],
     feedList: [],
-    topics: [],
+    topicsColl: [],
     networkError: null,
     form: {
       status: 'filling',
@@ -50,52 +51,52 @@ export default () => {
     input: document.querySelector('#url'),
     submit: document.querySelector('.btn[type="submit"]'),
   };
-  /*
-здесь будет обертка стейта в вотчд стейт
-  */
 
-  elements.form.addEventListener('submit', async (e) => {
+  const watchedState = initView(state, elements);
+
+  elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
+
     const formData = new FormData(elements.form);
     const userUrl = formData.get('url').trim();
-    console.log('url', userUrl);
-    const error = validateUrl(userUrl, state);
-    console.log('error', error);
+
+    const error = validateUrl(userUrl, watchedState);
 
     if (error) {
-      state.form.validation = {
+      watchedState.form.validation = {
         valid: false,
         error,
       };
       return;
     }
 
-    state.form.validation.valid = true;
-    state.linkList.push(userUrl);
-    console.log('state', state);
+    watchedState.form.validation = {
+      valid: true,
+      error: null,
+    };
 
+    watchedState.linkList.push(userUrl);
+    watchedState.form.status = 'sending';
     const url = buildUrl(userUrl);
-    console.log('url for axios', url);
-    axios.get(url)
+    axios
+      .get(url)
       .then((response) => {
-        console.log(response);
         const rssData = parseRss(response.data);
-        console.log('rssData', rssData);
         return rssData;
       })
       .catch((err) => {
         // здесь кэтч для ошибок сети
-        state.networkError = err;
-        console.log(err);
+        watchedState.networkError = err;
+        watchedState.form.status = 'failed';
       })
       .then((rssData) => {
         const id = _.uniqueId();
         const { title, description, topics } = rssData;
         const newFeed = { id, title, description };
-        const newTopics = { id, topics };
-        state.feedList.push(newFeed);
-        state.topics.push(newTopics);
-        console.log('state', state);
+        const newTopic = { id, topics };
+        watchedState.feedList.push(newFeed);
+        watchedState.topicsColl.push(newTopic);
+        watchedState.form.status = 'finished';
       })
       .catch(() => {
         // кэтч для ошибок в случае если по ссылке находится не рсс формат
