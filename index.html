@@ -7,8 +7,8 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="container-fluid p-3">
-        <div class="row m-5">
+    <div class="container-fluid p-5">
+        <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
             <h1 class="display-3">
               RSS Агрегатор
@@ -17,27 +17,28 @@
               <div class="row">
                 <div class="col">
                   <input type="text" id="url" name="url" class="form-control form-control-lg" aria-describedby="inputUrl">
+                  <div class="feedback">
+              </div>
                 </div>
                 <div class="col-auto">
                   <button type="submit" class="btn btn-lg btn-primary px-sm-5">Add</button>
                 </div>
               </div>
+              
             </form>
-            <div class="feedback">
-            </div>
           </div>
         </div>
       </div>
-      <div class="container-fluid">
-        <div class="row m-5">
+      <div class="container-fluid p-5">
+        <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
             <div class="data-container feeds">
             </div>
           </div>
         </div>
-        <div class="row m-5">
+        <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
-            <div class="data-container topics"></div>
+            <div class="data-container topics m-3"></div>
           </div>
         </div>
       </div>

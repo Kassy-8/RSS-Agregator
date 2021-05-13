@@ -16,7 +16,7 @@ const buildUrl = (link) => {
   return url;
 };
 
-const isDuplicateUrl = (value, state) => state.feedList.includes(value);
+const isDuplicateUrl = (value, state) => state.linkList.includes(value);
 
 const validateUrl = (value, state) => {
   const schema = yup.string().url(errorMessages.incorrectUrl);
@@ -63,17 +63,13 @@ export default () => {
     const error = validateUrl(userUrl, watchedState);
 
     if (error) {
-      watchedState.form.validation = {
-        valid: false,
-        error,
-      };
+      watchedState.form.validation.valid = false;
+      watchedState.form.validation.error = error;
       return;
     }
 
-    watchedState.form.validation = {
-      valid: true,
-      error: null,
-    };
+    watchedState.form.validation.valid = true;
+    watchedState.form.validation.error = error;
 
     watchedState.linkList.push(userUrl);
     watchedState.form.status = 'sending';

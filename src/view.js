@@ -54,13 +54,13 @@ const renderTopics = (state) => {
 };
 
 const renderValidationErrors = (state, value, elements) => {
-  const feedbackContainer = document.querySelector('feedback');
   const { input } = elements;
+  const feedbackContainer = document.querySelector('.feedback');
+  feedbackContainer.innerHTML = '';
 
   if (state.form.validation.valid === true) {
     input.classList.remove('is-invalid');
     feedbackContainer.classList.remove('invalid-feedback');
-    feedbackContainer.innerHTML = '';
   } else {
     feedbackContainer.classList.add('invalid-feedback');
     input.classList.add('is-invalid');
@@ -102,17 +102,11 @@ const renderForm = (state, formState, elements) => {
 };
 
 export default (state, elements) => {
-  const { submit } = elements;
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.status':
         renderForm(state, value, elements);
         break;
-      case 'form.validation.valid': {
-        console.log('inside path validation.valid');
-        submit.disabled = !value;
-        break;
-      }
       case 'form.validation.error': {
         renderValidationErrors(state, value, elements);
         break;
