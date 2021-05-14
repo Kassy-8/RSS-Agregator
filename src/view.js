@@ -1,12 +1,12 @@
 import { Toast } from 'bootstrap';
 import onChange from 'on-change';
 
-const renderFeeds = (state) => {
+const renderFeeds = (state, i118nObject) => {
   const feedContainer = document.querySelector('.feeds');
   feedContainer.innerHTML = '';
 
   const mainFeedTitle = document.createElement('h2');
-  mainFeedTitle.textContent = 'Фиды';
+  mainFeedTitle.textContent = i118nObject.t('containers.feeds');
   feedContainer.append(mainFeedTitle);
 
   const feedList = document.createElement('ul');
@@ -27,12 +27,12 @@ const renderFeeds = (state) => {
   });
 };
 
-const renderTopics = (state) => {
+const renderTopics = (state, i118nObject) => {
   const topicsContainer = document.querySelector('.topics');
   topicsContainer.innerHTML = '';
 
   const mainTopicsTitle = document.createElement('h2');
-  mainTopicsTitle.textContent = 'Посты';
+  mainTopicsTitle.textContent = i118nObject.t('containers.topics');
   topicsContainer.append(mainTopicsTitle);
 
   const topicsList = document.createElement('ul');
@@ -62,12 +62,14 @@ const renderValidationErrors = (state, value, elements, i118nObject) => {
     input.classList.remove('is-invalid');
     feedbackContainer.classList.remove('invalid-feedback');
   } else {
-    feedbackContainer.classList.add('invalid-feedback');
     input.classList.add('is-invalid');
+    feedbackContainer.classList.add('invalid-feedback');
     feedbackContainer.textContent = i118nObject.t(value);
   }
 };
 
+// как пример для работы с тоастом
+/*
 const renderNetworkError = (error, elements, i118nObject) => {
   const { toast } = elements;
   if (!error) {
@@ -80,6 +82,21 @@ const renderNetworkError = (error, elements, i118nObject) => {
   const toastEl = new Toast(toast, { autohide: true });
   toastEl.show();
 };
+*/
+
+// стоит ли делать рендер отдельно ошибок парсинга? Может слить с нетворком, без тоаста
+const renderError = (error, elements, i118nObject) => {
+  const { feedbackContainer } = elements;
+  feedbackContainer.innerHTML = '';
+
+  if (!error) {
+    feedbackContainer.classList.remove('text-danger');
+  } else {
+    feedbackContainer.classList.add('text-danger');
+    console.log('inside renderParseError', error);
+    feedbackContainer.textContent = i118nObject.t(error);
+  }
+};
 
 const renderForm = (state, formState, elements, i118nObject) => {
   const {
@@ -88,7 +105,7 @@ const renderForm = (state, formState, elements, i118nObject) => {
   switch (formState) {
     case 'processed': {
       feedbackContainer.classList.remove('text-success');
-      feedbackContainer.textContent = '';
+      feedbackContainer.innerHTML = '';
       break;
     }
     case 'sending': {
@@ -106,9 +123,14 @@ const renderForm = (state, formState, elements, i118nObject) => {
       input.disabled = false;
       submit.disabled = false;
       feedbackContainer.classList.add('text-success');
+      // console.log('inside before textcontent', i118nObject.t('successFeedback'));
+      // после неудачной загрузки например с ошибкой парсинга, не появляется
+      // успешное поле, ошибки валидации отрабатывает. Потом на второй запрос появляется
       feedbackContainer.textContent = i118nObject.t('successFeedback');
-      renderFeeds(state);
-      renderTopics(state);
+      // console.log('inside form status case after textcontent');
+
+      renderFeeds(state, i118nObject);
+      renderTopics(state, i118nObject);
       form.reset();
       break;
     }
@@ -129,7 +151,8 @@ export default (state, elements, i118nObject) => {
         break;
       }
       case 'errors.networkError':
-        renderNetworkError(value, elements, i118nObject);
+      case 'errors.parseError':
+        renderError(value, elements, i118nObject);
         break;
       default:
         break;

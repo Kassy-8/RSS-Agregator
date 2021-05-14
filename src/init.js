@@ -1,38 +1,7 @@
-import * as yup from 'yup';
-import axios from 'axios';
-import _ from 'lodash';
 import i18next from 'i18next';
-import parseRss from './parseRss.js';
 import initView from './view.js';
 import translation from './assets/ruLocale.js';
-
-const getAllOriginsUrl = () => 'https://hexlet-allorigins.herokuapp.com/raw';
-const buildUrl = (link) => {
-  const url = new URL(getAllOriginsUrl());
-  url.searchParams.append('url', link);
-  return url;
-};
-
-yup.setLocale({
-  string: {
-    url: 'validation.incorrectUrl',
-  },
-  mixed: {
-    notOneOf: 'validation.duplicateUrl',
-  },
-});
-
-const validateUrl = (value, state) => {
-  const schema1 = yup.string().url();
-  const schema2 = yup.mixed().notOneOf(state.linkList);
-  try {
-    schema1.validateSync(value);
-    schema2.validateSync(value);
-    return null;
-  } catch (error) {
-    return error.message;
-  }
-};
+import submitHandler from './submitHandler.js';
 
 export default () => {
   const state = {
@@ -56,11 +25,10 @@ export default () => {
     form: document.querySelector('.rss-form'),
     input: document.querySelector('#url'),
     submit: document.querySelector('.btn[type="submit"]'),
-    feedbackContainer: document.querySelector('.feedback'),
+    feedbackContainer: document.querySelector('#feedback'),
     toast: document.querySelector('.toast'),
   };
 
-  // Здесь вероятно после инит будет then и дальше все пойдет только в нем
   const i18nInstance = i18next.createInstance();
   i18nInstance.init({
     lng: 'ru',
@@ -72,7 +40,11 @@ export default () => {
 
   const watchedState = initView(state, elements, i18nInstance);
 
-  elements.form.addEventListener('submit', (e) => {
+  elements.form.addEventListener('submit', submitHandler(watchedState, elements));
+};
+
+/*
+  e) => {
     e.preventDefault();
     watchedState.form.status = 'processed';
 
@@ -99,10 +71,7 @@ export default () => {
         watchedState.form.status = 'failed';
       })
       .then((response) => {
-      // если по ссылку невалидный рсс, он тоже попадет сюда.
-      // может пуш ссылки отнести к последему шагу
-        watchedState.linkList.push(userUrl);
-        // надо на каком-то этапе почистить ошибки которые невалидные
+      // надо на каком-то этапе почистить ошибки которые невалидные
         watchedState.errors.networkError = null;
         watchedState.errors.parseError = null;
 
@@ -114,9 +83,12 @@ export default () => {
         const { title, description, topics } = rssData;
         const newFeed = { id, title, description };
         const newTopic = { id, topics };
+
         watchedState.feedList.push(newFeed);
         watchedState.topicsColl.push(newTopic);
         watchedState.form.status = 'finished';
+
+        watchedState.linkList.push(userUrl);
       })
       .catch(() => {
         // кэтч для ошибок в случае если по ссылке находится не рсс формат
@@ -126,3 +98,4 @@ export default () => {
       });
   });
 };
+*/

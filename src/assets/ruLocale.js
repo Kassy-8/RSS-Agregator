@@ -9,5 +9,9 @@ export default {
       parseError: 'Ресурс не содержит валидный RSS',
     },
     successFeedback: 'RSS успешно загружен',
+    containers: {
+      feeds: 'Фиды',
+      topics: 'Посты',
+    },
   },
 };
