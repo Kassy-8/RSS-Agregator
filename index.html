@@ -7,18 +7,32 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="container-fluid p-5">
+    <div class="container-fluid p-3">
         <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
+            <div class="toast position-absolute" role="alert" aria-live="assertive" aria-atomic="true" style="top: 20%; right: 50%;">
+              <div class="toast-header">
+                <strong class="me-auto">Network Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+              <div class="toast-body">
+              </div>
+            </div>
             <h1 class="display-3">
               RSS Агрегатор
             </h1>
+            <p>
+              Начните читать RSS сегодня! Это легко, это красиво.
+            </p>
             <form class="rss-form">
               <div class="row">
                 <div class="col">
                   <input type="text" id="url" name="url" class="form-control form-control-lg" aria-describedby="inputUrl">
+                  <div class="form-text">
+                    Пример: https://ru.hexlet.io/lessons.rss
+                  </div>
                   <div class="feedback">
-              </div>
+                  </div>
                 </div>
                 <div class="col-auto">
                   <button type="submit" class="btn btn-lg btn-primary px-sm-5">Add</button>
@@ -26,10 +40,11 @@
               </div>
               
             </form>
+            
           </div>
         </div>
       </div>
-      <div class="container-fluid p-5">
+      <div class="container-fluid p-3">
         <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
             <div class="data-container feeds">

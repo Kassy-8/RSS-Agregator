@@ -1,13 +1,10 @@
 import * as yup from 'yup';
 import axios from 'axios';
 import _ from 'lodash';
+import i18next from 'i18next';
 import parseRss from './parseRss.js';
 import initView from './view.js';
-
-const errorMessages = {
-  incorrectUrl: 'Некорректный url BAD BAD',
-  duplicateUrl: 'Url уже присутствует в списке фидов',
-};
+import translation from './assets/ruLocale.js';
 
 const getAllOriginsUrl = () => 'https://hexlet-allorigins.herokuapp.com/raw';
 const buildUrl = (link) => {
@@ -16,15 +13,21 @@ const buildUrl = (link) => {
   return url;
 };
 
-const isDuplicateUrl = (value, state) => state.linkList.includes(value);
+yup.setLocale({
+  string: {
+    url: 'validation.incorrectUrl',
+  },
+  mixed: {
+    notOneOf: 'validation.duplicateUrl',
+  },
+});
 
 const validateUrl = (value, state) => {
-  const schema = yup.string().url(errorMessages.incorrectUrl);
+  const schema1 = yup.string().url();
+  const schema2 = yup.mixed().notOneOf(state.linkList);
   try {
-    schema.validateSync(value);
-    if (isDuplicateUrl(value, state)) {
-      return errorMessages.duplicateUrl;
-    }
+    schema1.validateSync(value);
+    schema2.validateSync(value);
     return null;
   } catch (error) {
     return error.message;
@@ -36,9 +39,12 @@ export default () => {
     linkList: [],
     feedList: [],
     topicsColl: [],
-    networkError: null,
+    errors: {
+      networkError: null,
+      parseError: null,
+    },
     form: {
-      status: 'filling',
+      status: 'processed',
       validation: {
         valid: true,
         error: null,
@@ -50,12 +56,25 @@ export default () => {
     form: document.querySelector('.rss-form'),
     input: document.querySelector('#url'),
     submit: document.querySelector('.btn[type="submit"]'),
+    feedbackContainer: document.querySelector('.feedback'),
+    toast: document.querySelector('.toast'),
   };
 
-  const watchedState = initView(state, elements);
+  // Здесь вероятно после инит будет then и дальше все пойдет только в нем
+  const i18nInstance = i18next.createInstance();
+  i18nInstance.init({
+    lng: 'ru',
+    debug: true,
+    resources: {
+      ru: translation,
+    },
+  });
+
+  const watchedState = initView(state, elements, i18nInstance);
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
+    watchedState.form.status = 'processed';
 
     const formData = new FormData(elements.form);
     const userUrl = formData.get('url').trim();
@@ -70,20 +89,25 @@ export default () => {
 
     watchedState.form.validation.valid = true;
     watchedState.form.validation.error = error;
-
-    watchedState.linkList.push(userUrl);
     watchedState.form.status = 'sending';
+
     const url = buildUrl(userUrl);
     axios
       .get(url)
+      .catch((netErr) => {
+        watchedState.errors.networkError = netErr.message;
+        watchedState.form.status = 'failed';
+      })
       .then((response) => {
+      // если по ссылку невалидный рсс, он тоже попадет сюда.
+      // может пуш ссылки отнести к последему шагу
+        watchedState.linkList.push(userUrl);
+        // надо на каком-то этапе почистить ошибки которые невалидные
+        watchedState.errors.networkError = null;
+        watchedState.errors.parseError = null;
+
         const rssData = parseRss(response.data);
         return rssData;
-      })
-      .catch((err) => {
-        // здесь кэтч для ошибок сети
-        watchedState.networkError = err;
-        watchedState.form.status = 'failed';
       })
       .then((rssData) => {
         const id = _.uniqueId();
@@ -97,7 +121,8 @@ export default () => {
       .catch(() => {
         // кэтч для ошибок в случае если по ссылке находится не рсс формат
         // но парсер все равно форматировал данные
-        console.log('this is nor rss url');
+        watchedState.form.status = 'failed';
+        watchedState.errors.parseError = 'errors.parseError';
       });
   });
 };

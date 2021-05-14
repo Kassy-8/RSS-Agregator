@@ -1,3 +1,4 @@
+import { Toast } from 'bootstrap';
 import onChange from 'on-change';
 
 const renderFeeds = (state) => {
@@ -53,9 +54,8 @@ const renderTopics = (state) => {
   });
 };
 
-const renderValidationErrors = (state, value, elements) => {
-  const { input } = elements;
-  const feedbackContainer = document.querySelector('.feedback');
+const renderValidationErrors = (state, value, elements, i118nObject) => {
+  const { input, feedbackContainer } = elements;
   feedbackContainer.innerHTML = '';
 
   if (state.form.validation.valid === true) {
@@ -64,16 +64,31 @@ const renderValidationErrors = (state, value, elements) => {
   } else {
     feedbackContainer.classList.add('invalid-feedback');
     input.classList.add('is-invalid');
-    feedbackContainer.textContent = value;
+    feedbackContainer.textContent = i118nObject.t(value);
   }
 };
 
-const renderForm = (state, formState, elements) => {
-  const { form, input, submit } = elements;
+const renderNetworkError = (error, elements, i118nObject) => {
+  const { toast } = elements;
+  if (!error) {
+    return;
+  }
+  const toastBody = toast.querySelector('.toast-body');
+  // текст дублируется, стоит ли оставлять?
+  // насколько иноформативен вывод ошибок сети? может из них доставать код статуса?
+  toastBody.textContent = i118nObject.t('errors.networkError', { error });
+  const toastEl = new Toast(toast, { autohide: true });
+  toastEl.show();
+};
+
+const renderForm = (state, formState, elements, i118nObject) => {
+  const {
+    form, input, submit, feedbackContainer,
+  } = elements;
   switch (formState) {
-    case 'filling': {
-      // нужно ли событие филлинг если оно ничего особенного не делает?
-      input.focus();
+    case 'processed': {
+      feedbackContainer.classList.remove('text-success');
+      feedbackContainer.textContent = '';
       break;
     }
     case 'sending': {
@@ -84,33 +99,38 @@ const renderForm = (state, formState, elements) => {
     case 'failed': {
       input.disabled = false;
       submit.disabled = false;
-      // здесь надо показать сообщение с ошибкой сети, тоаст или типа того
       input.select();
       break;
     }
     case 'finished': {
       input.disabled = false;
       submit.disabled = false;
+      feedbackContainer.classList.add('text-success');
+      feedbackContainer.textContent = i118nObject.t('successFeedback');
       renderFeeds(state);
       renderTopics(state);
       form.reset();
       break;
     }
     default:
-      throw new Error(`Unknown type of formState: ${state}`);
+      throw new Error(`Unknown type of formState: ${state}`); // заменить тут?
   }
 };
 
-export default (state, elements) => {
+// сделать ли тут мэппинг
+export default (state, elements, i118nObject) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.status':
-        renderForm(state, value, elements);
+        renderForm(state, value, elements, i118nObject);
         break;
       case 'form.validation.error': {
-        renderValidationErrors(state, value, elements);
+        renderValidationErrors(state, value, elements, i118nObject);
         break;
       }
+      case 'errors.networkError':
+        renderNetworkError(value, elements, i118nObject);
+        break;
       default:
         break;
     }
