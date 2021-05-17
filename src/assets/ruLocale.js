@@ -7,6 +7,7 @@ export default {
     errors: {
       networkError: 'Произошла ошибка сети: {{error}}',
       parseError: 'Ресурс не содержит валидный RSS',
+      badRequestErrors: 'Невозможно обновить ленту по адресу {{url}}. Ошибка сети: {{response}}',
     },
     successFeedback: 'RSS успешно загружен',
     containers: {

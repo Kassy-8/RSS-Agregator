@@ -2,15 +2,18 @@ import i18next from 'i18next';
 import initView from './view.js';
 import translation from './assets/ruLocale.js';
 import submitHandler from './submitHandler.js';
+import updateTopics from './updateTopics.js';
+import parseRss from './parseRss.js';
 
 export default () => {
   const state = {
     linkList: [],
     feedList: [],
-    topicsColl: [],
+    topicColl: [],
     errors: {
       networkError: null,
       parseError: null,
+      badRequestErrors: [],
     },
     form: {
       status: 'processed',
@@ -27,6 +30,7 @@ export default () => {
     submit: document.querySelector('.btn[type="submit"]'),
     feedbackContainer: document.querySelector('#feedback'),
     toast: document.querySelector('.toast'),
+    feedbackForUpdateErrors: document.querySelector('.update-feedback'),
   };
 
   const i18nInstance = i18next.createInstance();
@@ -41,6 +45,12 @@ export default () => {
   const watchedState = initView(state, elements, i18nInstance);
 
   elements.form.addEventListener('submit', submitHandler(watchedState, elements));
+
+  const timeoutId = window.setTimeout(() => updateTopics(watchedState, parseRss, (err, result) => {
+    if (err) {
+      
+    }
+  }), 5000)
 };
 
 /*

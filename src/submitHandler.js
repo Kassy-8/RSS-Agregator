@@ -5,9 +5,11 @@ import _ from 'lodash';
 import parseRss from './parseRss.js';
 
 const getAllOriginsUrl = () => 'https://hexlet-allorigins.herokuapp.com/raw';
-const buildUrl = (link) => {
+
+export const buildUrl = (link) => {
   const url = new URL(getAllOriginsUrl());
   url.searchParams.append('url', link);
+  url.searchParams.append('disableCache', true);
   return url;
 };
 
@@ -66,6 +68,7 @@ export default (state, elements) => (event) => {
       return rssData;
     })
     .then((rssData) => {
+      console.log('rssData', rssData);
       const id = _.uniqueId();
       const { title, description, topics } = rssData;
       const newFeed = { id, title, description };
