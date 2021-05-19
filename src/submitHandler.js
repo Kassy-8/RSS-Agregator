@@ -61,29 +61,31 @@ export default (state, elements) => (event) => {
       state.form.status = 'failed';
     })
     .then((response) => {
-      // надо на каком-то этапе почистить ошибки которые невалидные
       state.errors.networkError = null;
 
       const rssData = parseRss(response.data);
       return rssData;
     })
     .then((rssData) => {
-      console.log('rssData', rssData);
       const id = _.uniqueId();
       const { title, description, topics } = rssData;
-      const newFeed = { id, title, description };
-      const newTopic = { id, topics };
-
+      const newFeed = {
+        id, title, description, rssLink: userUrl,
+      };
       state.feedList.push(newFeed);
-      state.topicsColl.push(newTopic);
+
+      topics.forEach((topic) => {
+        topic.id = id;
+      });
+      state.topicColl.push(...topics);
+      // const newTopic = { id, topics };
+
       state.form.status = 'finished';
 
       state.errors.parseError = null;
       state.linkList.push(userUrl);
     })
     .catch(() => {
-      // кэтч для ошибок в случае если по ссылке находится не рсс формат
-      // но парсер все равно форматировал данные
       state.form.status = 'failed';
       state.errors.parseError = 'errors.parseError';
     });

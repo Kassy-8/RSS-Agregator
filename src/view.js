@@ -38,20 +38,18 @@ const renderTopics = (state, i18nObject) => {
   const topicsList = document.createElement('ul');
   topicsList.classList.add('list-group');
   topicsContainer.append(topicsList);
-
-  state.topicColl.forEach(({ topics }) => {
-    const links = topics.map(({ topicTitle, topicLink }) => {
-      const li = document.createElement('li');
-      li.classList.add('list-group-item');
-      const link = document.createElement('a');
-      link.href = topicLink;
-      link.target = '_blank';
-      link.textContent = topicTitle;
-      li.append(link);
-      return li;
-    });
-    topicsList.append(...links);
+  console.log('state in renderTopic', state);
+  const links = state.topicColl.map(({ topicTitle, topicLink }) => {
+    const li = document.createElement('li');
+    li.classList.add('list-group-item');
+    const link = document.createElement('a');
+    link.href = topicLink;
+    link.target = '_blank';
+    link.textContent = topicTitle;
+    li.append(link);
+    return li;
   });
+  topicsList.append(...links);
 };
 
 const renderValidationErrors = (state, value, elements, i18nObject) => {
@@ -181,3 +179,32 @@ export default (state, elements, i18nObject) => {
 
   return watchedState;
 };
+
+/*
+const renderTopics = (state, i18nObject) => {
+  const topicsContainer = document.querySelector('.topics');
+  topicsContainer.innerHTML = '';
+
+  const mainTopicsTitle = document.createElement('h2');
+  mainTopicsTitle.textContent = i18nObject.t('containers.topics');
+  topicsContainer.append(mainTopicsTitle);
+
+  const topicsList = document.createElement('ul');
+  topicsList.classList.add('list-group');
+  topicsContainer.append(topicsList);
+console.log('state in renderTopic', state);
+  state.topicColl.forEach(({ topics }) => {
+    const links = topics.map(({ topicTitle, topicLink }) => {
+      const li = document.createElement('li');
+      li.classList.add('list-group-item');
+      const link = document.createElement('a');
+      link.href = topicLink;
+      link.target = '_blank';
+      link.textContent = topicTitle;
+      li.append(link);
+      return li;
+    });
+    topicsList.append(...links);
+  });
+};
+*/

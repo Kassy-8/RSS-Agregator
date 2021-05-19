@@ -2,8 +2,7 @@ import i18next from 'i18next';
 import initView from './view.js';
 import translation from './assets/ruLocale.js';
 import submitHandler from './submitHandler.js';
-import updateTopics from './updateTopics.js';
-import parseRss from './parseRss.js';
+import startUpdateRss from './startUpdateRss.js';
 
 export default () => {
   const state = {
@@ -46,11 +45,7 @@ export default () => {
 
   elements.form.addEventListener('submit', submitHandler(watchedState, elements));
 
-  const timeoutId = window.setTimeout(() => updateTopics(watchedState, parseRss, (err, result) => {
-    if (err) {
-      
-    }
-  }), 5000)
+  startUpdateRss(watchedState);
 };
 
 /*
@@ -95,7 +90,7 @@ export default () => {
         const newTopic = { id, topics };
 
         watchedState.feedList.push(newFeed);
-        watchedState.topicsColl.push(newTopic);
+        watchedState.topicColl.push(newTopic);
         watchedState.form.status = 'finished';
 
         watchedState.linkList.push(userUrl);
