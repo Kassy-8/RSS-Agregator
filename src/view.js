@@ -1,12 +1,12 @@
-import { Toast } from 'bootstrap';
+import { Modal } from 'bootstrap';
 import onChange from 'on-change';
 
-const renderFeeds = (state, i18nObject) => {
-  const feedContainer = document.querySelector('.feeds');
+const renderFeeds = (state, elements, i18nObject) => {
+  const { feedContainer } = elements;
   feedContainer.innerHTML = '';
 
   const mainFeedTitle = document.createElement('h2');
-  mainFeedTitle.textContent = i18nObject.t('containers.feeds');
+  mainFeedTitle.textContent = i18nObject.t('feedsTitle');
   feedContainer.append(mainFeedTitle);
 
   const feedList = document.createElement('ul');
@@ -27,26 +27,58 @@ const renderFeeds = (state, i18nObject) => {
   });
 };
 
-const renderTopics = (state, i18nObject) => {
-  const topicsContainer = document.querySelector('.topics');
+const renderTopics = (state, elements, i18nObject) => {
+  const { viewedTopics } = state.uiState;
+  const { topicsContainer, modalEl } = elements;
   topicsContainer.innerHTML = '';
 
   const mainTopicsTitle = document.createElement('h2');
-  mainTopicsTitle.textContent = i18nObject.t('containers.topics');
+  mainTopicsTitle.textContent = i18nObject.t('topics.title');
   topicsContainer.append(mainTopicsTitle);
 
   const topicsList = document.createElement('ul');
   topicsList.classList.add('list-group');
   topicsContainer.append(topicsList);
-  console.log('state in renderTopic', state);
-  const links = state.topicColl.map(({ topicTitle, topicLink }) => {
+  const links = state.topicColl.map(({
+    topicTitle, topicLink, topicDescription, topicId,
+  }) => {
     const li = document.createElement('li');
-    li.classList.add('list-group-item');
+    li.classList.add('list-group-item', 'd-flex', 'justify-content-between');
+
     const link = document.createElement('a');
+    link.id = topicId;
     link.href = topicLink;
     link.target = '_blank';
+    link.classList.add((viewedTopics.includes(link.id))
+      ? 'fw-normal'
+      : 'fw-bold');
     link.textContent = topicTitle;
     li.append(link);
+
+    const button = document.createElement('button');
+    button.classList.add('btn', 'btn-primary');
+    button.textContent = i18nObject.t('topics.button');
+
+    // вынести бы хэндлер модального окна отдельно
+    button.addEventListener('click', () => {
+      const modalTitle = modalEl.querySelector('.modal-title');
+      modalTitle.textContent = topicTitle;
+      const modalDescription = modalEl.querySelector('.modal-body');
+      modalDescription.textContent = topicDescription;
+      const buttonForReading = modalEl.querySelector('.btn-primary');
+      buttonForReading.href = topicLink;
+      buttonForReading.target = '_blank';
+      const modalWindow = new Modal(modalEl);
+      modalWindow.show();
+
+      if (!viewedTopics.includes(topicId)) {
+        viewedTopics.push(topicId);
+        link.classList.remove('fw-bold');
+        link.classList.add('fw-normal');
+      }
+    });
+    li.append(button);
+
     return li;
   });
   topicsList.append(...links);
@@ -65,24 +97,20 @@ const renderValidationErrors = (state, value, elements, i18nObject) => {
     feedbackContainer.textContent = i18nObject.t(value);
   }
 };
-
-// как пример для работы с тоастом
 /*
 const renderNetworkError = (error, elements, i18nObject) => {
-  const { toast } = elements;
+  const { feedbackContainer } = elements;
+  feedbackContainer.innerHTML = '';
+
   if (!error) {
-    return;
+    feedbackContainer.classList.remove('text-danger');
+  } else {
+    feedbackContainer.classList.add('text-danger');
+    feedbackContainer.textContent = i18nObject.t('errors.networkError', { error });
   }
-  const toastBody = toast.querySelector('.toast-body');
-  // текст дублируется, стоит ли оставлять?
-  // насколько иноформативен вывод ошибок сети? может из них доставать код статуса?
-  toastBody.textContent = i18nObject.t('errors.networkError', { error });
-  const toastEl = new Toast(toast, { autohide: true });
-  toastEl.show();
 };
 */
 
-// стоит ли делать рендер отдельно ошибок парсинга? Может слить с нетворком, без тоаста
 const renderError = (error, elements, i18nObject) => {
   const { feedbackContainer } = elements;
   feedbackContainer.innerHTML = '';
@@ -103,10 +131,13 @@ const renderBadRequestError = (values, elements, i18nObject) => {
     feedbackForUpdateErrors.classList.remove('text-warning');
     return;
   }
+
+  const topicContainerTitle = document.querySelector('div.topics > h2');
+  topicContainerTitle.after(feedbackForUpdateErrors);
+
   const errorsMessage = values
     .map((value) => i18nObject.t('errors.badRequestErrors', { url: value.url, response: value.error }))
     .join('\n');
-
   feedbackForUpdateErrors.classList.add('text-warning');
   feedbackForUpdateErrors.textContent = errorsMessage;
 };
@@ -160,10 +191,10 @@ export default (state, elements, i18nObject) => {
         renderValidationErrors(state, value, elements, i18nObject);
         break;
       case 'feedList':
-        renderFeeds(state, i18nObject);
+        renderFeeds(state, elements, i18nObject);
         break;
       case 'topicColl':
-        renderTopics(state, i18nObject);
+        renderTopics(state, elements, i18nObject);
         break;
       case 'errors.networkError':
       case 'errors.parseError':

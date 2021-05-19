@@ -8,14 +8,23 @@
 </head>
 <body>
   <main>
-    <div class="toast position-absolute" role="alert" aria-live="assertive" aria-atomic="true" style="top: 20%; right: 50%;">
-    <div class="toast-header">
-      <strong class="me-auto">Network Error</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    <div class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Modal body text goes here.</p>
+          </div>
+          <div class="modal-footer">
+            <a class="btn btn-primary" role="button">Читать полностью</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="toast-body">
-    </div>
-  </div>
     <div class="container-fluid p-3">
         <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
@@ -55,7 +64,7 @@
         <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto">
             <div class="data-container update-feedback"></div>
-            <div class="data-container topics m-3"></div>
+            <div class="data-container topics mt-3"></div>
           </div>
         </div>
       </div>

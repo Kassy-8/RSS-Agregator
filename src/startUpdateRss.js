@@ -8,30 +8,32 @@ const updateRss = (state, callback) => {
   state.errors.badRequestErrors = [];
 
   console.log('runUpdateRSS');
-  const { feedList } = state;
-  if (_.isEmpty(feedList)) {
+  const { linkList } = state;
+  if (_.isEmpty(linkList)) {
     callback();
     return;
   }
 
-  const promises = feedList.map(({ rssLink, id }) => axios.get(buildUrl(rssLink))
+  const promises = linkList.map((link) => axios.get(buildUrl(link))
     .then((response) => {
       const data = parseRss(response.data);
       const { topics } = data;
+      /*
+      по моему не нужно уже, сравнение не по айди происходит
       topics.forEach((topic) => {
         topic.id = id;
       });
-
+*/
       const newTopics = topics
         .filter((newTopic) => state.topicColl
           .every((topic) => topic.topicGuid !== newTopic.topicGuid));
-
+      console.log('newTopics after filter', newTopics);
       if (!_.isEmpty(newTopics)) {
-        state.topicColl.push(...newTopics);
+        state.topicColl.unshift(...newTopics);
       }
     })
     .catch((error) => {
-      const badRequest = { url: rssLink, error };
+      const badRequest = { url: link, error };
       state.errors.badRequestErrors.push(badRequest);
     }));
 

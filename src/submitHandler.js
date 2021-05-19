@@ -8,8 +8,8 @@ const getAllOriginsUrl = () => 'https://hexlet-allorigins.herokuapp.com/raw';
 
 export const buildUrl = (link) => {
   const url = new URL(getAllOriginsUrl());
-  url.searchParams.append('url', link);
   url.searchParams.append('disableCache', true);
+  url.searchParams.append('url', link);
   return url;
 };
 
@@ -56,15 +56,15 @@ export default (state, elements) => (event) => {
   const url = buildUrl(userUrl);
   axios
     .get(url)
-    .catch(() => {
-      state.errors.networkError = 'errors.networkError';
-      state.form.status = 'failed';
-    })
     .then((response) => {
       state.errors.networkError = null;
 
       const rssData = parseRss(response.data);
       return rssData;
+    })
+    .catch(() => {
+      state.errors.networkError = 'errors.networkError';
+      state.form.status = 'failed';
     })
     .then((rssData) => {
       const id = _.uniqueId();
@@ -72,21 +72,22 @@ export default (state, elements) => (event) => {
       const newFeed = {
         id, title, description, rssLink: userUrl,
       };
-      state.feedList.push(newFeed);
+      state.feedList.unshift(newFeed);
 
       topics.forEach((topic) => {
-        topic.id = id;
+        topic.feedId = id;
+        topic.topicId = _.uniqueId();
       });
-      state.topicColl.push(...topics);
-      // const newTopic = { id, topics };
-
+      state.topicColl.unshift(...topics);
       state.form.status = 'finished';
 
       state.errors.parseError = null;
-      state.linkList.push(userUrl);
+      // этот массив удобно использовать при валидации, но и только
+      // убрать линк лист и в валидации постоянно создавать массив из фид листов?
+      state.linkList.unshift(userUrl);
     })
     .catch(() => {
-      state.form.status = 'failed';
       state.errors.parseError = 'errors.parseError';
+      state.form.status = 'failed';
     });
 };

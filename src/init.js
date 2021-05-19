@@ -1,4 +1,6 @@
 import i18next from 'i18next';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import initView from './view.js';
 import translation from './assets/ruLocale.js';
 import submitHandler from './submitHandler.js';
@@ -21,14 +23,19 @@ export default () => {
         error: null,
       },
     },
+    uiState: {
+      viewedTopics: [],
+    },
   };
 
   const elements = {
     form: document.querySelector('.rss-form'),
     input: document.querySelector('#url'),
     submit: document.querySelector('.btn[type="submit"]'),
+    feedContainer: document.querySelector('.feeds'),
+    topicsContainer: document.querySelector('.topics'),
+    modalEl: document.querySelector('.modal'),
     feedbackContainer: document.querySelector('#feedback'),
-    toast: document.querySelector('.toast'),
     feedbackForUpdateErrors: document.querySelector('.update-feedback'),
   };
 
@@ -42,6 +49,7 @@ export default () => {
   });
 
   const watchedState = initView(state, elements, i18nInstance);
+  console.log('watchedState initialization', watchedState);
 
   elements.form.addEventListener('submit', submitHandler(watchedState, elements));
 
