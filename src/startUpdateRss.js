@@ -17,7 +17,7 @@ const updateRss = (state, callback) => {
 
   const promises = linkList.map((link) => axios.get(buildUrl(link))
     .then((response) => {
-      const data = parseRss(response.data);
+      const data = parseRss(response.data.contents);
       const { topics } = data;
 
       const newTopics = topics

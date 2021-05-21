@@ -85,7 +85,7 @@ const renderTopics = (state, elements, i18nObject) => {
       // что не есть правильно.
       if (!viewedTopics.includes(topicId)) {
         viewedTopics.push(topicId);
-        console.log('inside viewedTopic if - state', state);
+        // console.log('inside viewedTopic if - state', state);
         link.classList.remove('fw-bold');
         link.classList.add('fw-normal');
       }
@@ -204,11 +204,11 @@ export default (state, elements, i18nObject) => {
       case 'errors.badRequestErrors':
         renderBadRequestError(value, elements, i18nObject);
         break;
-      case 'uiState.viewedTopics':
+      // case 'uiState.viewedTopics':
         // изменение через кнопку модального окна не отслеживается
         // хотя изменение в стейте есть
-        console.log('inside path viewedTopics');
-        break;
+        // console.log('inside path viewedTopics');
+        // break;
       default:
         break;
     }

@@ -4,10 +4,10 @@ import axios from 'axios';
 import _ from 'lodash';
 import parseRss from './parseRss.js';
 
-const getAllOriginsUrl = () => 'https://hexlet-allorigins.herokuapp.com/raw';
+const getProxyApi = () => 'https://hexlet-allorigins.herokuapp.com/get';
 
 export const buildUrl = (link) => {
-  const url = new URL(getAllOriginsUrl());
+  const url = new URL(getProxyApi());
   url.searchParams.append('disableCache', true);
   url.searchParams.append('url', link);
   return url;
@@ -59,7 +59,7 @@ export default (state, elements) => (event) => {
     .then((response) => {
       state.errors.networkError = null;
 
-      const rssData = parseRss(response.data);
+      const rssData = parseRss(response.data.contents);
       return rssData;
     })
     .catch(() => {
