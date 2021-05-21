@@ -27,9 +27,26 @@ const renderFeeds = (state, elements, i18nObject) => {
   });
 };
 
+const createModalWindow = (topic, elements) => {
+  const { modalEl } = elements;
+  const {
+    topicTitle, topicLink, topicDescription,
+  } = topic;
+
+  const modalTitle = modalEl.querySelector('.modal-title');
+  modalTitle.textContent = topicTitle;
+  const modalDescription = modalEl.querySelector('.modal-body');
+  modalDescription.textContent = topicDescription;
+  const buttonForReading = modalEl.querySelector('.btn-primary');
+  buttonForReading.href = topicLink;
+  buttonForReading.target = '_blank';
+  const modalWindow = new Modal(modalEl);
+  return modalWindow;
+};
+
 const renderTopics = (state, elements, i18nObject) => {
   const { viewedTopics } = state.uiState;
-  const { topicsContainer, modalEl } = elements;
+  const { topicsContainer } = elements;
   topicsContainer.innerHTML = '';
 
   const mainTopicsTitle = document.createElement('h2');
@@ -39,9 +56,10 @@ const renderTopics = (state, elements, i18nObject) => {
   const topicsList = document.createElement('ul');
   topicsList.classList.add('list-group');
   topicsContainer.append(topicsList);
-  const links = state.topicColl.map(({
-    topicTitle, topicLink, topicDescription, topicId,
-  }) => {
+  const links = state.topicColl.map((topic) => {
+    const {
+      topicTitle, topicLink, topicId,
+    } = topic;
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between');
 
@@ -59,20 +77,15 @@ const renderTopics = (state, elements, i18nObject) => {
     button.classList.add('btn', 'btn-primary');
     button.textContent = i18nObject.t('topics.button');
 
-    // вынести бы хэндлер модального окна отдельно
     button.addEventListener('click', () => {
-      const modalTitle = modalEl.querySelector('.modal-title');
-      modalTitle.textContent = topicTitle;
-      const modalDescription = modalEl.querySelector('.modal-body');
-      modalDescription.textContent = topicDescription;
-      const buttonForReading = modalEl.querySelector('.btn-primary');
-      buttonForReading.href = topicLink;
-      buttonForReading.target = '_blank';
-      const modalWindow = new Modal(modalEl);
+      const modalWindow = createModalWindow(topic, elements);
       modalWindow.show();
 
+      // приходится вручную прописывать проставление классов в контроллере
+      // что не есть правильно.
       if (!viewedTopics.includes(topicId)) {
         viewedTopics.push(topicId);
+        console.log('inside viewedTopic if - state', state);
         link.classList.remove('fw-bold');
         link.classList.add('fw-normal');
       }
@@ -97,19 +110,6 @@ const renderValidationErrors = (state, value, elements, i18nObject) => {
     feedbackContainer.textContent = i18nObject.t(value);
   }
 };
-/*
-const renderNetworkError = (error, elements, i18nObject) => {
-  const { feedbackContainer } = elements;
-  feedbackContainer.innerHTML = '';
-
-  if (!error) {
-    feedbackContainer.classList.remove('text-danger');
-  } else {
-    feedbackContainer.classList.add('text-danger');
-    feedbackContainer.textContent = i18nObject.t('errors.networkError', { error });
-  }
-};
-*/
 
 const renderError = (error, elements, i18nObject) => {
   const { feedbackContainer } = elements;
@@ -166,6 +166,7 @@ const renderForm = (state, formState, elements, i18nObject) => {
     case 'finished': {
       input.disabled = false;
       submit.disabled = false;
+      input.select();
       feedbackContainer.classList.add('text-success');
       // console.log('inside before textcontent', i18nObject.t('successFeedback'));
       // после неудачной загрузки например с ошибкой парсинга, не появляется
@@ -203,6 +204,11 @@ export default (state, elements, i18nObject) => {
       case 'errors.badRequestErrors':
         renderBadRequestError(value, elements, i18nObject);
         break;
+      case 'uiState.viewedTopics':
+        // изменение через кнопку модального окна не отслеживается
+        // хотя изменение в стейте есть
+        console.log('inside path viewedTopics');
+        break;
       default:
         break;
     }
@@ -210,32 +216,3 @@ export default (state, elements, i18nObject) => {
 
   return watchedState;
 };
-
-/*
-const renderTopics = (state, i18nObject) => {
-  const topicsContainer = document.querySelector('.topics');
-  topicsContainer.innerHTML = '';
-
-  const mainTopicsTitle = document.createElement('h2');
-  mainTopicsTitle.textContent = i18nObject.t('containers.topics');
-  topicsContainer.append(mainTopicsTitle);
-
-  const topicsList = document.createElement('ul');
-  topicsList.classList.add('list-group');
-  topicsContainer.append(topicsList);
-console.log('state in renderTopic', state);
-  state.topicColl.forEach(({ topics }) => {
-    const links = topics.map(({ topicTitle, topicLink }) => {
-      const li = document.createElement('li');
-      li.classList.add('list-group-item');
-      const link = document.createElement('a');
-      link.href = topicLink;
-      link.target = '_blank';
-      link.textContent = topicTitle;
-      li.append(link);
-      return li;
-    });
-    topicsList.append(...links);
-  });
-};
-*/

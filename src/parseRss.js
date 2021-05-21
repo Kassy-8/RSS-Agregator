@@ -11,7 +11,6 @@ export default (data) => {
     const topicLink = item.querySelector('link').nextSibling.textContent.trim();
     const topicGuid = item.querySelector('guid').textContent;
 
-    // а не сделать ли тут объект с методами, чтобы прописать геттеры
     return {
       topicTitle, topicDescription, topicLink, topicGuid,
     };

@@ -18,12 +18,13 @@ yup.setLocale({
     url: 'validation.incorrectUrl',
   },
   mixed: {
+    required: 'validation.emptyUrl',
     notOneOf: 'validation.duplicateUrl',
   },
 });
 
 const validateUrl = (value, state) => {
-  const schema1 = yup.string().url();
+  const schema1 = yup.string().required().url();
   const schema2 = yup.mixed().notOneOf(state.linkList);
   try {
     schema1.validateSync(value);
@@ -40,7 +41,6 @@ export default (state, elements) => (event) => {
 
   const formData = new FormData(elements.form);
   const userUrl = formData.get('url').trim();
-
   const error = validateUrl(userUrl, state);
 
   if (error) {
@@ -70,7 +70,7 @@ export default (state, elements) => (event) => {
       const id = _.uniqueId();
       const { title, description, topics } = rssData;
       const newFeed = {
-        id, title, description, rssLink: userUrl,
+        id, title, description,
       };
       state.feedList.unshift(newFeed);
 
@@ -79,11 +79,9 @@ export default (state, elements) => (event) => {
         topic.topicId = _.uniqueId();
       });
       state.topicColl.unshift(...topics);
-      state.form.status = 'finished';
 
+      state.form.status = 'finished';
       state.errors.parseError = null;
-      // этот массив удобно использовать при валидации, но и только
-      // убрать линк лист и в валидации постоянно создавать массив из фид листов?
       state.linkList.unshift(userUrl);
     })
     .catch(() => {

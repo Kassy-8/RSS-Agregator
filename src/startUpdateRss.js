@@ -9,6 +9,7 @@ const updateRss = (state, callback) => {
 
   console.log('runUpdateRSS');
   const { linkList } = state;
+
   if (_.isEmpty(linkList)) {
     callback();
     return;
@@ -18,16 +19,11 @@ const updateRss = (state, callback) => {
     .then((response) => {
       const data = parseRss(response.data);
       const { topics } = data;
-      /*
-      по моему не нужно уже, сравнение не по айди происходит
-      topics.forEach((topic) => {
-        topic.id = id;
-      });
-*/
+
       const newTopics = topics
         .filter((newTopic) => state.topicColl
           .every((topic) => topic.topicGuid !== newTopic.topicGuid));
-      console.log('newTopics after filter', newTopics);
+
       if (!_.isEmpty(newTopics)) {
         state.topicColl.unshift(...newTopics);
       }

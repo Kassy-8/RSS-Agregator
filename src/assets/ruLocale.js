@@ -1,6 +1,7 @@
 export default {
   translation: {
     validation: {
+      emptyUrl: 'Не должно быть пустым',
       incorrectUrl: 'Ссылка должна быть валидным URL',
       duplicateUrl: 'RSS уже существует',
     },

@@ -6,38 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<body>
-  <main>
-    <div class="modal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Modal title</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <p>Modal body text goes here.</p>
-          </div>
-          <div class="modal-footer">
-            <a class="btn btn-primary" role="button">Читать полностью</a>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-          </div>
+<body class="d-flex flex-column">
+  <div class="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modal title</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+          <a class="btn btn-primary" role="button">Читать полностью</a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
         </div>
       </div>
     </div>
-    <div class="container-fluid p-3">
+  </div>
+  <main class="flex-grow-1">
+    <div class="container-fluid p-5 bg-dark">
         <div class="row">
-          <div class="col-md-10 col-lg-8 mx-auto">
+          <div class="col-md-10 col-lg-8 mx-auto text-white">
             <h1 class="display-3">
               RSS Агрегатор
             </h1>
-            <p>
+            <p class="lead">
               Начните читать RSS сегодня! Это легко, это красиво.
             </p>
             <form class="rss-form">
               <div class="row">
                 <div class="col">
-                  <input type="text" id="url" name="url" class="form-control form-control-lg" aria-describedby="inputUrl">
+                  <input type="text" id="url" name="url" class="form-control form-control-lg" placeholder="Ссылка RSS">
                   <div class="form-text">
                     Пример: https://ru.hexlet.io/lessons.rss
                   </div>
@@ -54,14 +54,14 @@
           </div>
         </div>
       </div>
-      <div class="container-fluid p-3">
-        <div class="row">
+      <div class="container-fluid p-5">
+        <div class="row my-3">
           <div class="col-md-10 col-lg-8 mx-auto">
             <div class="data-container feeds">
             </div>
           </div>
         </div>
-        <div class="row">
+        <div class="row my-3">
           <div class="col-md-10 col-lg-8 mx-auto">
             <div class="data-container update-feedback"></div>
             <div class="data-container topics mt-3"></div>
@@ -69,5 +69,10 @@
         </div>
       </div>
   </main>
+  <footer class="footer mt-3 py-3 bg-light">
+    <div class="container-xl p-3 text-center">
+      <span>created for <a href="hexlet.io">Hexlet</a><span>
+    </div>
+  </footer>
 </body>
 </html>

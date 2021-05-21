@@ -1,6 +1,7 @@
 import i18next from 'i18next';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
+// import 'bootstrap';
 import initView from './view.js';
 import translation from './assets/ruLocale.js';
 import submitHandler from './submitHandler.js';
@@ -39,6 +40,8 @@ export default () => {
     feedbackForUpdateErrors: document.querySelector('.update-feedback'),
   };
 
+  // инит асинхроная фунция, может быть все что после нее запускается в then? Работает и так и так
+  // но в then логичнее, ведь тогда мы можем быть уверены, что языковая бибилотека готова
   const i18nInstance = i18next.createInstance();
   i18nInstance.init({
     lng: 'ru',
@@ -46,7 +49,17 @@ export default () => {
     resources: {
       ru: translation,
     },
-  });
+  })
+    .then(() => {
+      const watchedState = initView(state, elements, i18nInstance);
+
+      elements.form.addEventListener('submit', submitHandler(watchedState, elements));
+
+      startUpdateRss(watchedState);
+    });
+};
+
+/*
 
   const watchedState = initView(state, elements, i18nInstance);
   console.log('watchedState initialization', watchedState);
@@ -54,9 +67,7 @@ export default () => {
   elements.form.addEventListener('submit', submitHandler(watchedState, elements));
 
   startUpdateRss(watchedState);
-};
-
-/*
+  /////
   e) => {
     e.preventDefault();
     watchedState.form.status = 'processed';
