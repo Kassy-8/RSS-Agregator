@@ -153,18 +153,18 @@ const renderForm = (state, formState, elements, i18nObject) => {
       break;
     }
     case 'sending': {
-      input.disabled = true;
+      input.setAttribute('readonly', true);
       submit.disabled = true;
       break;
     }
     case 'failed': {
-      input.disabled = false;
+      input.removeAttribute('readonly');
       submit.disabled = false;
       input.select();
       break;
     }
     case 'finished': {
-      input.disabled = false;
+      input.removeAttribute('readonly');
       submit.disabled = false;
       input.select();
       feedbackContainer.classList.add('text-success');
