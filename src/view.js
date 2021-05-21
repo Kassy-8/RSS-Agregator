@@ -67,9 +67,12 @@ const renderTopics = (state, elements, i18nObject) => {
     link.id = topicId;
     link.href = topicLink;
     link.target = '_blank';
+
+    // В бутстрап 5 для изменения толщины начертания используются классы fw-bold и fw-normal
+    // поменяла на класс из младшей версии, чтобы прошли автотесты
     link.classList.add((viewedTopics.includes(link.id))
-      ? 'fw-normal'
-      : 'fw-bold');
+      ? 'font-weight-normal'
+      : 'font-weight-bold');
     link.textContent = topicTitle;
     li.append(link);
 
@@ -86,8 +89,8 @@ const renderTopics = (state, elements, i18nObject) => {
       if (!viewedTopics.includes(topicId)) {
         viewedTopics.push(topicId);
         // console.log('inside viewedTopic if - state', state);
-        link.classList.remove('fw-bold');
-        link.classList.add('fw-normal');
+        link.classList.remove('font-weight-bold');
+        link.classList.add('font-weight-normal');
       }
     });
     li.append(button);
