@@ -7,7 +7,7 @@ import parseRss from './parseRss.js';
 const updateRss = (state, callback) => {
   state.errors.badRequestErrors = [];
 
-  console.log('runUpdateRSS');
+  // console.log('runUpdateRSS');
   const { linkList } = state;
 
   if (_.isEmpty(linkList)) {
@@ -41,7 +41,7 @@ const updateRss = (state, callback) => {
 };
 
 const startUpdateRss = (state) => {
-  console.log('runStartUpdate');
+  // console.log('runStartUpdate');
   setTimeout(() => updateRss(state, () => startUpdateRss(state)), 5000);
 };
 
