@@ -3,10 +3,11 @@ import * as yup from 'yup';
 import axios from 'axios';
 import _ from 'lodash';
 import parseRss from './parseRss.js';
+import { messagePath, formStatus } from './constants.js';
 
 const getProxyApi = () => 'https://hexlet-allorigins.herokuapp.com/get';
 
-export const buildUrl = (link) => {
+export const buildUrlWithProxy = (link) => {
   const url = new URL(getProxyApi());
   url.searchParams.append('disableCache', true);
   url.searchParams.append('url', link);
@@ -15,11 +16,11 @@ export const buildUrl = (link) => {
 
 yup.setLocale({
   string: {
-    url: 'validation.incorrectUrl',
+    url: messagePath.incorrectUrl,
   },
   mixed: {
-    required: 'validation.emptyUrl',
-    notOneOf: 'validation.duplicateUrl',
+    required: messagePath.emptyUrl,
+    notOneOf: messagePath.duplicateUrl,
   },
 });
 
@@ -37,7 +38,7 @@ const validateUrl = (value, state) => {
 
 export default (state, elements) => (event) => {
   event.preventDefault();
-  state.form.status = 'processed';
+  state.form.status = formStatus.processed;
 
   const formData = new FormData(elements.form);
   const userUrl = formData.get('url').trim();
@@ -51,9 +52,9 @@ export default (state, elements) => (event) => {
 
   state.form.validation.valid = true;
   state.form.validation.error = null;
-  state.form.status = 'sending';
+  state.form.status = formStatus.sending;
 
-  const url = buildUrl(userUrl);
+  const url = buildUrlWithProxy(userUrl);
   axios
     .get(url)
     .then((response) => {
@@ -63,12 +64,13 @@ export default (state, elements) => (event) => {
       return rssData;
     })
     .catch(() => {
-      state.errors.networkError = 'errors.networkError';
-      state.form.status = 'failed';
+      state.errors.networkError = messagePath.networkError;
+      state.form.status = formStatus.failed;
     })
     .then((rssData) => {
       const id = _.uniqueId();
       const { title, description, topics } = rssData;
+
       const newFeed = {
         id, title, description,
       };
@@ -80,12 +82,12 @@ export default (state, elements) => (event) => {
       });
       state.topicColl.unshift(...topics);
 
-      state.form.status = 'finished';
+      state.form.status = formStatus.finished;
       state.errors.parseError = null;
       state.linkList.unshift(userUrl);
     })
     .catch(() => {
-      state.errors.parseError = 'errors.parseError';
-      state.form.status = 'failed';
+      state.errors.parseError = messagePath.parseError;
+      state.form.status = formStatus.failed;
     });
 };

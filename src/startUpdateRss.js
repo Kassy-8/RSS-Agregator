@@ -1,13 +1,12 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import _ from 'lodash';
-import { buildUrl } from './submitHandler.js';
+import { buildUrlWithProxy } from './submitHandler.js';
 import parseRss from './parseRss.js';
 
 const updateRss = (state, callback) => {
   state.errors.badRequestErrors = [];
 
-  // console.log('runUpdateRSS');
   const { linkList } = state;
 
   if (_.isEmpty(linkList)) {
@@ -15,7 +14,7 @@ const updateRss = (state, callback) => {
     return;
   }
 
-  const promises = linkList.map((link) => axios.get(buildUrl(link))
+  const promises = linkList.map((link) => axios.get(buildUrlWithProxy(link))
     .then((response) => {
       const data = parseRss(response.data.contents);
       const { topics } = data;
@@ -41,7 +40,6 @@ const updateRss = (state, callback) => {
 };
 
 const startUpdateRss = (state) => {
-  // console.log('runStartUpdate');
   setTimeout(() => updateRss(state, () => startUpdateRss(state)), 5000);
 };
 

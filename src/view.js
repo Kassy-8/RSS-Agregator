@@ -1,5 +1,18 @@
 import { Modal } from 'bootstrap';
 import onChange from 'on-change';
+import { messagePath, formStatus } from './constants.js';
+
+const createFeedListElement = (feed) => {
+  const feedListEl = document.createElement('li');
+  feedListEl.classList.add('list-group-item');
+
+  const title = document.createElement('h3');
+  title.textContent = feed.title;
+  const description = document.createElement('p');
+  description.textContent = feed.description;
+  feedListEl.append(title, description);
+  return feedListEl;
+};
 
 const renderFeeds = (state, elements, i18nObject) => {
   const { feedContainer } = elements;
@@ -14,16 +27,9 @@ const renderFeeds = (state, elements, i18nObject) => {
   feedContainer.append(feedList);
 
   state.feedList.forEach((feed) => {
-    const li = document.createElement('li');
-    li.classList.add('list-group-item');
+    const feedListEl = createFeedListElement(feed);
 
-    const title = document.createElement('h3');
-    title.textContent = feed.title;
-    const description = document.createElement('p');
-    description.textContent = feed.description;
-    li.append(title, description);
-
-    feedList.append(li);
+    feedList.append(feedListEl);
   });
 };
 
@@ -44,6 +50,22 @@ const createModalWindow = (topic, elements) => {
   return modalWindow;
 };
 
+const createTopicLink = (topic, viewedTopics) => {
+  const { topicId, topicLink, topicTitle } = topic;
+  const link = document.createElement('a');
+  link.id = topicId;
+  link.href = topicLink;
+  link.target = '_blank';
+
+  // В бутстрап 5 для изменения толщины начертания используются классы fw-bold и fw-normal
+  // поменяла на класс из младшей версии, чтобы прошли автотесты
+  link.classList.add((viewedTopics.includes(link.id))
+    ? 'font-weight-normal'
+    : 'font-weight-bold');
+  link.textContent = topicTitle;
+  return link;
+};
+
 const renderTopics = (state, elements, i18nObject) => {
   const { viewedTopics } = state.uiState;
   const { topicsContainer } = elements;
@@ -57,23 +79,10 @@ const renderTopics = (state, elements, i18nObject) => {
   topicsList.classList.add('list-group');
   topicsContainer.append(topicsList);
   const links = state.topicColl.map((topic) => {
-    const {
-      topicTitle, topicLink, topicId,
-    } = topic;
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between');
 
-    const link = document.createElement('a');
-    link.id = topicId;
-    link.href = topicLink;
-    link.target = '_blank';
-
-    // В бутстрап 5 для изменения толщины начертания используются классы fw-bold и fw-normal
-    // поменяла на класс из младшей версии, чтобы прошли автотесты
-    link.classList.add((viewedTopics.includes(link.id))
-      ? 'font-weight-normal'
-      : 'font-weight-bold');
-    link.textContent = topicTitle;
+    const link = createTopicLink(topic, viewedTopics);
     li.append(link);
 
     const button = document.createElement('button');
@@ -84,11 +93,13 @@ const renderTopics = (state, elements, i18nObject) => {
       const modalWindow = createModalWindow(topic, elements);
       modalWindow.show();
 
-      // приходится вручную прописывать проставление классов в контроллере
-      // что не есть правильно.
+      // хотела оставить здесь только пуш во viewedTopics,
+      // само изменение отслеживалось бы через watchedState и обрабатывалось бы в отдельной функции
+      // но не получилось, хотя изменения в стейте происходят и при добавлении новых фидов
+      // просмотренные посты учитываются. Постигнуть почему так - не смогла.
+      const { topicId } = topic;
       if (!viewedTopics.includes(topicId)) {
         viewedTopics.push(topicId);
-        // console.log('inside viewedTopic if - state', state);
         link.classList.remove('font-weight-bold');
         link.classList.add('font-weight-normal');
       }
@@ -99,6 +110,18 @@ const renderTopics = (state, elements, i18nObject) => {
   });
   topicsList.append(...links);
 };
+
+// Функция, которая должна была срабатывать на добавление просмотренного поста в uiState
+// const markViewedTopics = (viewedTopics, elements) => {
+//   const { topicsContainer } = elements;
+//   const topicLinks = topicsContainer.querySelectorAll('a');
+//   topicLinks.forEach((link) => {
+//     if (viewedTopics.includes(link.id)) {
+//       link.classList.remove('font-weight-bold');
+//       link.classList.add('font-weight-normal');
+//     }
+//   });
+// };
 
 const renderValidationErrors = (state, value, elements, i18nObject) => {
   const { input, feedbackContainer } = elements;
@@ -139,57 +162,53 @@ const renderBadRequestError = (values, elements, i18nObject) => {
   topicContainerTitle.after(feedbackForUpdateErrors);
 
   const errorsMessage = values
-    .map((value) => i18nObject.t('errors.badRequestErrors', { url: value.url, response: value.error }))
+    .map((value) => i18nObject
+      .t(messagePath.badRequestErrors, { url: value.url, response: value.error }))
     .join('\n');
   feedbackForUpdateErrors.classList.add('text-warning');
   feedbackForUpdateErrors.textContent = errorsMessage;
 };
 
-const renderForm = (state, formState, elements, i18nObject) => {
+const renderForm = (formState, elements, i18nObject) => {
   const {
     form, input, submit, feedbackContainer,
   } = elements;
   switch (formState) {
-    case 'processed': {
+    case formStatus.processed: {
       feedbackContainer.classList.remove('text-success');
       feedbackContainer.innerHTML = '';
       break;
     }
-    case 'sending': {
+    case formStatus.sending: {
       input.setAttribute('readonly', true);
       submit.disabled = true;
       break;
     }
-    case 'failed': {
+    case formStatus.failed: {
       input.removeAttribute('readonly');
       submit.disabled = false;
       input.select();
       break;
     }
-    case 'finished': {
+    case formStatus.finished: {
       input.removeAttribute('readonly');
       submit.disabled = false;
       input.select();
       feedbackContainer.classList.add('text-success');
-      // console.log('inside before textcontent', i18nObject.t('successFeedback'));
-      // после неудачной загрузки например с ошибкой парсинга, не появляется
-      // успешное поле, ошибки валидации отрабатывает. Потом на второй запрос появляется
-      feedbackContainer.textContent = i18nObject.t('successFeedback');
-      // console.log('inside form status case after textcontent');
+      feedbackContainer.textContent = i18nObject.t(messagePath.successFeedback);
       form.reset();
       break;
     }
     default:
-      throw new Error(`Unknown type of formState: ${state}`); // заменить тут?
+      throw new Error(`Unknown type of formState: ${formState}`);
   }
 };
 
-// сделать ли тут мэппинг
 export default (state, elements, i18nObject) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.status':
-        renderForm(state, value, elements, i18nObject);
+        renderForm(value, elements, i18nObject);
         break;
       case 'form.validation.error':
         renderValidationErrors(state, value, elements, i18nObject);
@@ -207,11 +226,10 @@ export default (state, elements, i18nObject) => {
       case 'errors.badRequestErrors':
         renderBadRequestError(value, elements, i18nObject);
         break;
+      // предполагаемый вариант снятия выделения с просмотренных постов
       // case 'uiState.viewedTopics':
-        // изменение через кнопку модального окна не отслеживается
-        // хотя изменение в стейте есть
-        // console.log('inside path viewedTopics');
-        // break;
+      //   markViewedTopics(value, elements);
+      //   break;
       default:
         break;
     }

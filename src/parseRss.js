@@ -1,15 +1,24 @@
 export default (data) => {
   const domParser = new DOMParser();
   const domObject = domParser.parseFromString(data, 'text/html');
-  const title = domObject.querySelector('title').textContent;
-  const description = domObject.querySelector('description').textContent;
+  const titleElement = domObject.querySelector('title');
+  const title = titleElement.textContent;
+  const descriptionElement = domObject.querySelector('description');
+  const description = descriptionElement.textContent;
 
-  const items = domObject.querySelectorAll('item');
-  const topics = Array.from(items).map((item) => {
-    const topicTitle = item.querySelector('title').textContent;
-    const topicDescription = item.querySelector('description').textContent;
-    const topicLink = item.querySelector('link').nextSibling.textContent.trim();
-    const topicGuid = item.querySelector('guid').textContent;
+  const topicsElements = domObject.querySelectorAll('item');
+  const topics = Array.from(topicsElements).map((topic) => {
+    const topicTitleElement = topic.querySelector('title');
+    const topicTitle = topicTitleElement.textContent;
+
+    const topicDescriptionElement = topic.querySelector('description');
+    const topicDescription = topicDescriptionElement.textContent;
+
+    const topicLinkElement = topic.querySelector('link').nextSibling;
+    const topicLink = topicLinkElement.textContent.trim();
+
+    const topicGuidElement = topic.querySelector('guid');
+    const topicGuid = topicGuidElement.textContent;
 
     return {
       topicTitle, topicDescription, topicLink, topicGuid,
