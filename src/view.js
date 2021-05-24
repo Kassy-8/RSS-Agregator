@@ -23,7 +23,7 @@ const renderFeeds = (state, elements, i18nObject) => {
   feedContainer.append(mainFeedTitle);
 
   const feedList = document.createElement('ul');
-  feedList.classList.add('list-group', 'list-group-flush');
+  feedList.classList.add('list-group', 'list-group-flush', 'mb-5');
   feedContainer.append(feedList);
 
   state.feedList.forEach((feed) => {
@@ -73,7 +73,7 @@ const renderTopics = (state, elements, i18nObject) => {
 
   const mainTopicsTitle = document.createElement('h2');
   mainTopicsTitle.textContent = i18nObject.t('topics.title');
-  topicsContainer.append(mainTopicsTitle);
+  topicsContainer.prepend(mainTopicsTitle);
 
   const topicsList = document.createElement('ul');
   topicsList.classList.add('list-group');
