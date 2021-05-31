@@ -1,30 +1,24 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import _ from 'lodash';
-import { buildUrlWithProxy } from './submitHandler.js';
+import { buildFeedProxyUrl } from './handleSubmit.js';
 import parseRss from './parseRss.js';
 
-const updateRss = (state, callback) => {
+const updateRss = (state) => {
   state.errors.badRequestErrors = [];
 
-  const { linkList } = state;
+  const { feedsUrls } = state;
 
-  if (_.isEmpty(linkList)) {
-    callback();
-    return;
-  }
-
-  const promises = linkList.map((link) => axios.get(buildUrlWithProxy(link))
+  const promises = feedsUrls.map((link) => axios.get(buildFeedProxyUrl(link))
     .then((response) => {
       const data = parseRss(response.data.contents);
       const { topics } = data;
 
       const newTopics = topics
-        .filter((newTopic) => state.topicColl
-          .every((topic) => topic.topicGuid !== newTopic.topicGuid));
+        .filter((newTopic) => state.posts.every((topic) => topic.guid !== newTopic.guid));
 
       if (!_.isEmpty(newTopics)) {
-        state.topicColl.unshift(...newTopics);
+        state.posts.unshift(...newTopics);
       }
     })
     .catch((error) => {
@@ -32,15 +26,13 @@ const updateRss = (state, callback) => {
       state.errors.badRequestErrors.push(badRequest);
     }));
 
-  const promise = Promise.all(promises);
-  promise
-    .then(() => {
-      callback();
-    });
+  return Promise.all(promises);
 };
 
-const startUpdateRss = (state) => {
-  setTimeout(() => updateRss(state, () => startUpdateRss(state)), 5000);
+const subscriptToFeedsUpdates = (state) => {
+  setTimeout(() => updateRss(state).then(() => {
+    subscriptToFeedsUpdates(state);
+  }), 5000);
 };
 
-export default startUpdateRss;
+export default subscriptToFeedsUpdates;

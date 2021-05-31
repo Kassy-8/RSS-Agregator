@@ -5,10 +5,10 @@ import _ from 'lodash';
 import parseRss from './parseRss.js';
 import { messagePath, formStatus } from './constants.js';
 
-const getProxyApi = () => 'https://hexlet-allorigins.herokuapp.com/get';
+const proxyBaseUrl = () => 'https://hexlet-allorigins.herokuapp.com/get';
 
-export const buildUrlWithProxy = (link) => {
-  const url = new URL(getProxyApi());
+export const buildFeedProxyUrl = (link) => {
+  const url = new URL(proxyBaseUrl());
   url.searchParams.append('disableCache', true);
   url.searchParams.append('url', link);
   return url;
@@ -26,7 +26,7 @@ yup.setLocale({
 
 const validateUrl = (value, state) => {
   const schema1 = yup.string().required().url();
-  const schema2 = yup.mixed().notOneOf(state.linkList);
+  const schema2 = yup.mixed().notOneOf(state.feedsUrls);
   try {
     schema1.validateSync(value);
     schema2.validateSync(value);
@@ -36,13 +36,13 @@ const validateUrl = (value, state) => {
   }
 };
 
-export default (state, elements) => (event) => {
+export default (state, elements, event) => {
   event.preventDefault();
   state.form.status = formStatus.processed;
 
   const formData = new FormData(elements.form);
-  const userUrl = formData.get('url').trim();
-  const error = validateUrl(userUrl, state);
+  const feedUrl = formData.get('url').trim();
+  const error = validateUrl(feedUrl, state);
 
   if (error) {
     state.form.validation.valid = false;
@@ -52,19 +52,22 @@ export default (state, elements) => (event) => {
 
   state.form.validation.valid = true;
   state.form.validation.error = null;
+  state.errors.networkError = null;
   state.form.status = formStatus.sending;
 
-  const url = buildUrlWithProxy(userUrl);
+  const url = buildFeedProxyUrl(feedUrl);
   axios
     .get(url)
+    .catch(() => {
+      state.errors.networkError = messagePath.networkError;
+      state.form.status = formStatus.failed;
+    })
     .then((response) => {
-      state.errors.networkError = null;
-
       const rssData = parseRss(response.data.contents);
       return rssData;
     })
     .catch(() => {
-      state.errors.networkError = messagePath.networkError;
+      state.errors.parseError = messagePath.parseError;
       state.form.status = formStatus.failed;
     })
     .then((rssData) => {
@@ -74,17 +77,17 @@ export default (state, elements) => (event) => {
       const newFeed = {
         id, title, description,
       };
-      state.feedList.unshift(newFeed);
+      state.feeds.unshift(newFeed);
 
       topics.forEach((topic) => {
         topic.feedId = id;
         topic.topicId = _.uniqueId();
       });
-      state.topicColl.unshift(...topics);
+      state.posts.unshift(...topics);
 
       state.form.status = formStatus.finished;
       state.errors.parseError = null;
-      state.linkList.unshift(userUrl);
+      state.feedsUrls.unshift(feedUrl);
     })
     .catch(() => {
       state.errors.parseError = messagePath.parseError;

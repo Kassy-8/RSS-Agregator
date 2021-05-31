@@ -7,31 +7,14 @@
     <title>Document</title>
 </head>
 <body class="d-flex flex-column justify-content-between min-vh-100">
-  <div class="modal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Modal title</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>Modal body text goes here.</p>
-        </div>
-        <div class="modal-footer">
-          <a class="btn btn-primary" role="button">Читать полностью</a>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-        </div>
-      </div>
-    </div>
-  </div>
   <main class="flex-grow-1">
     <div class="container-fluid p-5 bg-dark">
-        <div class="row">
-          <div class="col-md-10 col-lg-8 mx-auto text-white">
-            <h1 class="display-3">
-              RSS Агрегатор
-            </h1>
-            <p class="lead">
+      <div class="row">
+        <div class="col-md-10 col-lg-8 mx-auto text-white">
+          <h1 class="display-3">
+            RSS Агрегатор
+          </h1>
+          <p class="lead">
               Начните читать RSS сегодня! Это легко, это красиво.
             </p>
             <form class="rss-form">
@@ -65,11 +48,28 @@
           </div>
         </div>
       </div>
-  </main>
-  <footer class="footer mt-auto bg-light border-top">
-    <div class="container p-3 text-center">
-      <span>created for <a href="https://ru.hexlet.io/programs/frontend">Hexlet</a><span>
-    </div>
-  </footer>
-</body>
-</html>
+    </main>
+    <footer class="footer mt-auto bg-light border-top">
+      <div class="container p-3 text-center">
+        <span>created for <a href="https://ru.hexlet.io/programs/frontend">Hexlet</a><span>
+        </div>
+      </footer>
+      <div class="modal" id="modalTopic" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Modal title</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+              <a class="btn btn-primary" role="button">Читать полностью</a>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>

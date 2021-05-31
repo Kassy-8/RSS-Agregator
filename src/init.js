@@ -1,16 +1,17 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/css/bootstrap-grid.min.css';
+import 'bootstrap';
 import i18next from 'i18next';
 import translation from './assets/ruLocale.js';
 import initView from './view.js';
-import submitHandler from './submitHandler.js';
-import startUpdateRss from './startUpdateRss.js';
+import handleSubmit from './handleSubmit.js';
+import subscriptToFeedsUpdates from './startUpdateRss.js';
 
 export default () => {
   const state = {
-    linkList: [],
-    feedList: [],
-    topicColl: [],
+    feedsUrls: [],
+    feeds: [],
+    posts: [],
     errors: {
       networkError: null,
       parseError: null,
@@ -25,6 +26,8 @@ export default () => {
     },
     uiState: {
       viewedTopics: [],
+      // viewedTopics: new Set(),
+      modal: null,
     },
   };
 
@@ -34,7 +37,7 @@ export default () => {
     submit: document.querySelector('.btn[type="submit"]'),
     feedContainer: document.querySelector('.feeds'),
     topicsContainer: document.querySelector('.topics'),
-    modalEl: document.querySelector('.modal'),
+    modal: document.querySelector('.modal'),
     feedbackContainer: document.querySelector('#feedback'),
     feedbackForUpdateErrors: document.querySelector('.update-feedback'),
   };
@@ -42,7 +45,7 @@ export default () => {
   const i18nInstance = i18next.createInstance();
   i18nInstance.init({
     lng: 'ru',
-    debug: true,
+    debug: process.env.NODE_ENV === 'development',
     resources: {
       ru: translation,
     },
@@ -50,8 +53,8 @@ export default () => {
     .then(() => {
       const watchedState = initView(state, elements, i18nInstance);
 
-      elements.form.addEventListener('submit', submitHandler(watchedState, elements));
+      elements.form.addEventListener('submit', (event) => handleSubmit(watchedState, elements, event));
 
-      startUpdateRss(watchedState);
+      // subscriptToFeedsUpdates(watchedState);
     });
 };

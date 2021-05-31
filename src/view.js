@@ -3,15 +3,15 @@ import onChange from 'on-change';
 import { messagePath, formStatus } from './constants.js';
 
 const createFeedListElement = (feed) => {
-  const feedListEl = document.createElement('li');
-  feedListEl.classList.add('list-group-item');
+  const element = document.createElement('li');
+  element.classList.add('list-group-item');
 
   const title = document.createElement('h3');
   title.textContent = feed.title;
   const description = document.createElement('p');
   description.textContent = feed.description;
-  feedListEl.append(title, description);
-  return feedListEl;
+  element.append(title, description);
+  return element;
 };
 
 const renderFeeds = (state, elements, i18nObject) => {
@@ -26,7 +26,7 @@ const renderFeeds = (state, elements, i18nObject) => {
   feedList.classList.add('list-group', 'list-group-flush', 'mb-5');
   feedContainer.append(feedList);
 
-  state.feedList.forEach((feed) => {
+  state.feeds.forEach((feed) => {
     const feedListEl = createFeedListElement(feed);
 
     feedList.append(feedListEl);
@@ -34,36 +34,39 @@ const renderFeeds = (state, elements, i18nObject) => {
 };
 
 const createModalWindow = (topic, elements) => {
-  const { modalEl } = elements;
+  const { modal } = elements;
   const {
-    topicTitle, topicLink, topicDescription,
+    title, link, description,
   } = topic;
 
-  const modalTitle = modalEl.querySelector('.modal-title');
-  modalTitle.textContent = topicTitle;
-  const modalDescription = modalEl.querySelector('.modal-body');
-  modalDescription.textContent = topicDescription;
-  const buttonForReading = modalEl.querySelector('.btn-primary');
-  buttonForReading.href = topicLink;
+  const modalTitle = modal.querySelector('.modal-title');
+  modalTitle.textContent = title;
+  const modalDescription = modal.querySelector('.modal-body');
+  modalDescription.textContent = description;
+  const buttonForReading = modal.querySelector('.btn-primary');
+  buttonForReading.href = link;
   buttonForReading.target = '_blank';
-  const modalWindow = new Modal(modalEl);
+  const modalWindow = new Modal(modal);
   return modalWindow;
 };
 
 const createTopicLink = (topic, viewedTopics) => {
-  const { topicId, topicLink, topicTitle } = topic;
-  const link = document.createElement('a');
-  link.id = topicId;
-  link.href = topicLink;
-  link.target = '_blank';
+  const { topicId, link, title } = topic;
+  const linkEl = document.createElement('a');
+  linkEl.id = topicId;
+  linkEl.href = link;
+  linkEl.target = '_blank';
 
   // В бутстрап 5 для изменения толщины начертания используются классы fw-bold и fw-normal
   // поменяла на класс из младшей версии, чтобы прошли автотесты
-  link.classList.add((viewedTopics.includes(link.id))
-    ? 'font-weight-normal'
-    : 'font-weight-bold');
-  link.textContent = topicTitle;
-  return link;
+  // linkEl.classList.add((viewedTopics.includes(linkEl.id))
+  //   ? 'font-weight-normal'
+  //   : 'font-weight-bold');
+  linkEl.classList.add((viewedTopics.includes(linkEl.id))
+    ? 'fw-normal'
+    : 'fw-bold');
+  linkEl.textContent = title;
+  return linkEl;
 };
 
 const renderTopics = (state, elements, i18nObject) => {
@@ -78,7 +81,7 @@ const renderTopics = (state, elements, i18nObject) => {
   const topicsList = document.createElement('ul');
   topicsList.classList.add('list-group');
   topicsContainer.append(topicsList);
-  const links = state.topicColl.map((topic) => {
+  const links = state.posts.map((topic) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between');
 
@@ -87,6 +90,8 @@ const renderTopics = (state, elements, i18nObject) => {
 
     const button = document.createElement('button');
     button.classList.add('btn', 'btn-primary');
+    button.dataset.bsToggle = 'modal';
+    button.dataset.bsTarget = 'modalTopic';
     button.textContent = i18nObject.t('topics.button');
 
     button.addEventListener('click', () => {
@@ -100,8 +105,8 @@ const renderTopics = (state, elements, i18nObject) => {
       const { topicId } = topic;
       if (!viewedTopics.includes(topicId)) {
         viewedTopics.push(topicId);
-        link.classList.remove('font-weight-bold');
-        link.classList.add('font-weight-normal');
+        link.classList.remove('fw-bold');
+        link.classList.add('fw-normal');
       }
     });
     li.append(button);
@@ -213,10 +218,10 @@ export default (state, elements, i18nObject) => {
       case 'form.validation.error':
         renderValidationErrors(state, value, elements, i18nObject);
         break;
-      case 'feedList':
+      case 'feeds':
         renderFeeds(state, elements, i18nObject);
         break;
-      case 'topicColl':
+      case 'posts':
         renderTopics(state, elements, i18nObject);
         break;
       case 'errors.networkError':
