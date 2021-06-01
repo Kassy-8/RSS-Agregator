@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import _ from 'lodash';
-import { buildFeedProxyUrl } from './handleSubmit.js';
+import { buildFeedProxyUrl } from './handlers.js';
 import parseRss from './parseRss.js';
 
 const updateRss = (state) => {
@@ -15,10 +15,10 @@ const updateRss = (state) => {
       const { topics } = data;
 
       const newTopics = topics
-        .filter((newTopic) => state.posts.every((topic) => topic.guid !== newTopic.guid));
+        .filter((newTopic) => state.topics.every((topic) => topic.guid !== newTopic.guid));
 
       if (!_.isEmpty(newTopics)) {
-        state.posts.unshift(...newTopics);
+        state.topics.unshift(...newTopics);
       }
     })
     .catch((error) => {
@@ -30,9 +30,10 @@ const updateRss = (state) => {
 };
 
 const subscriptToFeedsUpdates = (state) => {
-  setTimeout(() => updateRss(state).then(() => {
-    subscriptToFeedsUpdates(state);
-  }), 5000);
+  setTimeout(() => updateRss(state)
+    .then(() => {
+      subscriptToFeedsUpdates(state);
+    }), 5000);
 };
 
 export default subscriptToFeedsUpdates;

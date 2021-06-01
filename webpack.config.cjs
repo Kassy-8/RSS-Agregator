@@ -10,7 +10,7 @@ module.exports = {
       },
     ],
   },
-  mode: process.env.NODE_ENV || 'development',
+  mode: 'development',
   plugins: [
     new HtmlWebpackPlugin({
       template: 'index.html',

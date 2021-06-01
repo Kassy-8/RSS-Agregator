@@ -1,17 +1,16 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap-grid.min.css';
 import 'bootstrap';
 import i18next from 'i18next';
-import translation from './assets/ruLocale.js';
+import translation from './locales/ruLocale.js';
 import initView from './view.js';
-import handleSubmit from './handleSubmit.js';
+import { handleSubmit, handleButton } from './handlers.js';
 import subscriptToFeedsUpdates from './startUpdateRss.js';
 
 export default () => {
   const state = {
     feedsUrls: [],
     feeds: [],
-    posts: [],
+    topics: [],
     errors: {
       networkError: null,
       parseError: null,
@@ -25,8 +24,7 @@ export default () => {
       },
     },
     uiState: {
-      viewedTopics: [],
-      // viewedTopics: new Set(),
+      viewedTopics: new Set(),
       modal: null,
     },
   };
@@ -54,7 +52,8 @@ export default () => {
       const watchedState = initView(state, elements, i18nInstance);
 
       elements.form.addEventListener('submit', (event) => handleSubmit(watchedState, elements, event));
+      elements.topicsContainer.addEventListener('click', (event) => handleButton(watchedState, event));
 
-      // subscriptToFeedsUpdates(watchedState);
+      subscriptToFeedsUpdates(watchedState);
     });
 };

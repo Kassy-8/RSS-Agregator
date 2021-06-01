@@ -6,4 +6,13 @@
 *This repository is created as part of education on [Hexlet](https://hexlet.io).*
 
 Drown in the new's stream with our RSS Agregator!
+
+1. Follow the next link:
 https://frontend-project-lvl3-neon.vercel.app/
+
+2. Enter the rss-containing-url in the search bar, press Add.
+*For example: https://ru.hexlet.io/lessons.rss*
+
+3. You see title and description of added rss-feed and list of last posts. If you click the link, the particular post will open in new window. Click on the button 'Просмотр' to read short post's description and decide do you really wanna see this news.
+
+4. Add so many feeds as you want. Feed will be update every 5 seconds and you don't miss anything!

@@ -36,7 +36,7 @@ const validateUrl = (value, state) => {
   }
 };
 
-export default (state, elements, event) => {
+export const handleSubmit = (state, elements, event) => {
   event.preventDefault();
   state.form.status = formStatus.processed;
 
@@ -83,7 +83,7 @@ export default (state, elements, event) => {
         topic.feedId = id;
         topic.topicId = _.uniqueId();
       });
-      state.posts.unshift(...topics);
+      state.topics.unshift(...topics);
 
       state.form.status = formStatus.finished;
       state.errors.parseError = null;
@@ -93,4 +93,13 @@ export default (state, elements, event) => {
       state.errors.parseError = messagePath.parseError;
       state.form.status = formStatus.failed;
     });
+};
+
+export const handleButton = (state, event) => {
+  const buttonId = event.target.dataset.id;
+  if (!buttonId) {
+    return;
+  }
+  state.uiState.modal = buttonId;
+  state.uiState.viewedTopics.add(buttonId);
 };

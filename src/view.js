@@ -33,11 +33,13 @@ const renderFeeds = (state, elements, i18nObject) => {
   });
 };
 
-const createModalWindow = (topic, elements) => {
+const createModalWindow = (topicId, state, elements) => {
   const { modal } = elements;
+
+  const currentTopic = state.topics.find((topic) => topic.topicId === topicId);
   const {
     title, link, description,
-  } = topic;
+  } = currentTopic;
 
   const modalTitle = modal.querySelector('.modal-title');
   modalTitle.textContent = title;
@@ -56,17 +58,26 @@ const createTopicLink = (topic, viewedTopics) => {
   linkEl.id = topicId;
   linkEl.href = link;
   linkEl.target = '_blank';
-
-  // В бутстрап 5 для изменения толщины начертания используются классы fw-bold и fw-normal
-  // поменяла на класс из младшей версии, чтобы прошли автотесты
-  // linkEl.classList.add((viewedTopics.includes(linkEl.id))
-  //   ? 'font-weight-normal'
-  //   : 'font-weight-bold');
-  linkEl.classList.add((viewedTopics.includes(linkEl.id))
-    ? 'fw-normal'
-    : 'fw-bold');
+  linkEl.classList.add((viewedTopics.has(linkEl.id))
+  //   ? 'fw-normal'
+  //   : 'fw-bold');
+    ? 'font-weight-normal'
+    : 'font-weight-bold');
   linkEl.textContent = title;
   return linkEl;
+};
+
+const createTopicButton = (topic, i18nObject) => {
+  const { topicId } = topic;
+
+  const button = document.createElement('button');
+  button.classList.add('btn', 'btn-primary');
+  button.dataset.id = topicId;
+  button.dataset.bsToggle = 'modal';
+  button.dataset.bsTarget = '#modalTopic';
+  button.textContent = i18nObject.t('topics.button');
+
+  return button;
 };
 
 const renderTopics = (state, elements, i18nObject) => {
@@ -81,34 +92,14 @@ const renderTopics = (state, elements, i18nObject) => {
   const topicsList = document.createElement('ul');
   topicsList.classList.add('list-group');
   topicsContainer.append(topicsList);
-  const links = state.posts.map((topic) => {
+  const links = state.topics.map((topic) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between');
 
     const link = createTopicLink(topic, viewedTopics);
     li.append(link);
 
-    const button = document.createElement('button');
-    button.classList.add('btn', 'btn-primary');
-    button.dataset.bsToggle = 'modal';
-    button.dataset.bsTarget = 'modalTopic';
-    button.textContent = i18nObject.t('topics.button');
-
-    button.addEventListener('click', () => {
-      const modalWindow = createModalWindow(topic, elements);
-      modalWindow.show();
-
-      // хотела оставить здесь только пуш во viewedTopics,
-      // само изменение отслеживалось бы через watchedState и обрабатывалось бы в отдельной функции
-      // но не получилось, хотя изменения в стейте происходят и при добавлении новых фидов
-      // просмотренные посты учитываются. Постигнуть почему так - не смогла.
-      const { topicId } = topic;
-      if (!viewedTopics.includes(topicId)) {
-        viewedTopics.push(topicId);
-        link.classList.remove('fw-bold');
-        link.classList.add('fw-normal');
-      }
-    });
+    const button = createTopicButton(topic, i18nObject);
     li.append(button);
 
     return li;
@@ -116,17 +107,19 @@ const renderTopics = (state, elements, i18nObject) => {
   topicsList.append(...links);
 };
 
-// Функция, которая должна была срабатывать на добавление просмотренного поста в uiState
-// const markViewedTopics = (viewedTopics, elements) => {
-//   const { topicsContainer } = elements;
-//   const topicLinks = topicsContainer.querySelectorAll('a');
-//   topicLinks.forEach((link) => {
-//     if (viewedTopics.includes(link.id)) {
-//       link.classList.remove('font-weight-bold');
-//       link.classList.add('font-weight-normal');
-//     }
-//   });
-// };
+const markViewedTopics = (viewedTopics, elements) => {
+  const { topicsContainer } = elements;
+
+  const topicLinks = topicsContainer.querySelectorAll('a');
+  topicLinks.forEach((link) => {
+    if (viewedTopics.has(link.id)) {
+      link.classList.remove('font-weight-bold');
+      link.classList.add('font-weight-normal');
+      // link.classList.remove('fw-bold');
+      // link.classList.add('fw-normal');
+    }
+  });
+};
 
 const renderValidationErrors = (state, value, elements, i18nObject) => {
   const { input, feedbackContainer } = elements;
@@ -211,32 +204,20 @@ const renderForm = (formState, elements, i18nObject) => {
 
 export default (state, elements, i18nObject) => {
   const watchedState = onChange(state, (path, value) => {
-    switch (path) {
-      case 'form.status':
-        renderForm(value, elements, i18nObject);
-        break;
-      case 'form.validation.error':
-        renderValidationErrors(state, value, elements, i18nObject);
-        break;
-      case 'feeds':
-        renderFeeds(state, elements, i18nObject);
-        break;
-      case 'posts':
-        renderTopics(state, elements, i18nObject);
-        break;
-      case 'errors.networkError':
-      case 'errors.parseError':
-        renderError(value, elements, i18nObject);
-        break;
-      case 'errors.badRequestErrors':
-        renderBadRequestError(value, elements, i18nObject);
-        break;
-      // предполагаемый вариант снятия выделения с просмотренных постов
-      // case 'uiState.viewedTopics':
-      //   markViewedTopics(value, elements);
-      //   break;
-      default:
-        break;
+    const mapping = {
+      'form.status': () => renderForm(value, elements, i18nObject),
+      'form.validation.error': () => renderValidationErrors(state, value, elements, i18nObject),
+      feeds: () => renderFeeds(state, elements, i18nObject),
+      topics: () => renderTopics(state, elements, i18nObject),
+      'errors.networkError': () => renderError(value, elements, i18nObject),
+      'errors.parseError': () => renderError(value, elements, i18nObject),
+      'errors.badRequestErrors': () => renderBadRequestError(value, elements, i18nObject),
+      'uiState.modal': () => createModalWindow(value, state, elements),
+      'uiState.viewedTopics': () => markViewedTopics(value, elements),
+    };
+
+    if (mapping[path]) {
+      mapping[path]();
     }
   });
 
