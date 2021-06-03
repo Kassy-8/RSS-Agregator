@@ -5,10 +5,7 @@ import { buildFeedProxyUrl } from './handlers.js';
 import parseRss from './parseRss.js';
 
 const updateRss = (state) => {
-  state.errors.badRequestErrors = [];
-
   const { feedsUrls } = state;
-
   const promises = feedsUrls.map((link) => axios.get(buildFeedProxyUrl(link))
     .then((response) => {
       const data = parseRss(response.data.contents);
@@ -22,8 +19,7 @@ const updateRss = (state) => {
       }
     })
     .catch((error) => {
-      const badRequest = { url: link, error };
-      state.errors.badRequestErrors.push(badRequest);
+      console.log(error);
     }));
 
   return Promise.all(promises);
@@ -31,7 +27,7 @@ const updateRss = (state) => {
 
 const subscriptToFeedsUpdates = (state) => {
   setTimeout(() => updateRss(state)
-    .then(() => {
+    .finally(() => {
       subscriptToFeedsUpdates(state);
     }), 5000);
 };

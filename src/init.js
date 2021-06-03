@@ -1,6 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 import i18next from 'i18next';
+import * as yup from 'yup';
+import yupLocale from './locales/yupLocale.js';
 import translation from './locales/ruLocale.js';
 import initView from './view.js';
 import { handleSubmit, handleButton } from './handlers.js';
@@ -11,11 +13,7 @@ export default () => {
     feedsUrls: [],
     feeds: [],
     topics: [],
-    errors: {
-      networkError: null,
-      parseError: null,
-      badRequestErrors: [],
-    },
+    error: null,
     form: {
       status: 'processed',
       validation: {
@@ -37,7 +35,6 @@ export default () => {
     topicsContainer: document.querySelector('.topics'),
     modal: document.querySelector('.modal'),
     feedbackContainer: document.querySelector('#feedback'),
-    feedbackForUpdateErrors: document.querySelector('.update-feedback'),
   };
 
   const i18nInstance = i18next.createInstance();
@@ -49,6 +46,8 @@ export default () => {
     },
   })
     .then(() => {
+      yup.setLocale(yupLocale);
+
       const watchedState = initView(state, elements, i18nInstance);
 
       elements.form.addEventListener('submit', (event) => handleSubmit(watchedState, elements, event));

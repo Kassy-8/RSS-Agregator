@@ -8,7 +8,6 @@ export default {
     errors: {
       networkError: 'Ошибка сети',
       parseError: 'Ресурс не содержит валидный RSS',
-      badRequestErrors: 'Невозможно обновить ленту по адресу {{url}}. Ошибка сети: {{response}}',
     },
     successFeedback: 'RSS успешно загружен',
     topics: {

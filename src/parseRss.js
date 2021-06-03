@@ -4,7 +4,7 @@ export default (data) => {
 
   const parseError = domObject.querySelector('parseerror');
   if (parseError) {
-    throw new Error('Ресурс не содержит валидный HTML');
+    throw new Error('Unvalid html');
   }
 
   const titleElement = domObject.querySelector('title');

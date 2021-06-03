@@ -14,16 +14,6 @@ export const buildFeedProxyUrl = (link) => {
   return url;
 };
 
-yup.setLocale({
-  string: {
-    url: messagePath.incorrectUrl,
-  },
-  mixed: {
-    required: messagePath.emptyUrl,
-    notOneOf: messagePath.duplicateUrl,
-  },
-});
-
 const validateUrl = (value, state) => {
   const schema1 = yup.string().required().url();
   const schema2 = yup.mixed().notOneOf(state.feedsUrls);
@@ -52,23 +42,15 @@ export const handleSubmit = (state, elements, event) => {
 
   state.form.validation.valid = true;
   state.form.validation.error = null;
-  state.errors.networkError = null;
+  state.error = null;
   state.form.status = formStatus.sending;
 
   const url = buildFeedProxyUrl(feedUrl);
   axios
     .get(url)
-    .catch(() => {
-      state.errors.networkError = messagePath.networkError;
-      state.form.status = formStatus.failed;
-    })
     .then((response) => {
       const rssData = parseRss(response.data.contents);
       return rssData;
-    })
-    .catch(() => {
-      state.errors.parseError = messagePath.parseError;
-      state.form.status = formStatus.failed;
     })
     .then((rssData) => {
       const id = _.uniqueId();
@@ -86,11 +68,17 @@ export const handleSubmit = (state, elements, event) => {
       state.topics.unshift(...topics);
 
       state.form.status = formStatus.finished;
-      state.errors.parseError = null;
       state.feedsUrls.unshift(feedUrl);
     })
-    .catch(() => {
-      state.errors.parseError = messagePath.parseError;
+    .catch((err) => {
+      // По условию у нас есть два варианта реагирования на ошибки:
+      // - Ресурс не содержит валидный RSS и Ошибка сети.
+      // В случае, если бы нужно было идентифицировать отдельно ошибки парсинга
+      // невалидного html, то можно было попробовать идентифицировать его
+      // так же через заданное сообщение или через установленный флаг.
+      state.error = (err.message === 'Network Error')
+        ? messagePath.networkError
+        : messagePath.parseError;
       state.form.status = formStatus.failed;
     });
 };

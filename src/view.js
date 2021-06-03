@@ -136,6 +136,7 @@ const renderValidationErrors = (state, value, elements, i18nObject) => {
 };
 
 const renderError = (error, elements, i18nObject) => {
+  console.log('in renderError, error message:', error);
   const { feedbackContainer } = elements;
   feedbackContainer.innerHTML = '';
 
@@ -145,26 +146,6 @@ const renderError = (error, elements, i18nObject) => {
     feedbackContainer.classList.add('text-danger');
     feedbackContainer.textContent = i18nObject.t(error);
   }
-};
-
-const renderBadRequestError = (values, elements, i18nObject) => {
-  const { feedbackForUpdateErrors } = elements;
-
-  if (values.length === 0) {
-    feedbackForUpdateErrors.innerHTML = '';
-    feedbackForUpdateErrors.classList.remove('text-warning');
-    return;
-  }
-
-  const topicContainerTitle = document.querySelector('div.topics > h2');
-  topicContainerTitle.after(feedbackForUpdateErrors);
-
-  const errorsMessage = values
-    .map((value) => i18nObject
-      .t(messagePath.badRequestErrors, { url: value.url, response: value.error }))
-    .join('\n');
-  feedbackForUpdateErrors.classList.add('text-warning');
-  feedbackForUpdateErrors.textContent = errorsMessage;
 };
 
 const renderForm = (formState, elements, i18nObject) => {
@@ -209,9 +190,7 @@ export default (state, elements, i18nObject) => {
       'form.validation.error': () => renderValidationErrors(state, value, elements, i18nObject),
       feeds: () => renderFeeds(state, elements, i18nObject),
       topics: () => renderTopics(state, elements, i18nObject),
-      'errors.networkError': () => renderError(value, elements, i18nObject),
-      'errors.parseError': () => renderError(value, elements, i18nObject),
-      'errors.badRequestErrors': () => renderBadRequestError(value, elements, i18nObject),
+      error: () => renderError(value, elements, i18nObject),
       'uiState.modal': () => createModalWindow(value, state, elements),
       'uiState.viewedTopics': () => markViewedTopics(value, elements),
     };
