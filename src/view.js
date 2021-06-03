@@ -59,10 +59,8 @@ const createTopicLink = (topic, viewedTopics) => {
   linkEl.href = link;
   linkEl.target = '_blank';
   linkEl.classList.add((viewedTopics.has(linkEl.id))
-  //   ? 'fw-normal'
-  //   : 'fw-bold');
-    ? 'font-weight-normal'
-    : 'font-weight-bold');
+    ? 'fw-normal'
+    : 'fw-bold');
   linkEl.textContent = title;
   return linkEl;
 };
@@ -113,10 +111,8 @@ const markViewedTopics = (viewedTopics, elements) => {
   const topicLinks = topicsContainer.querySelectorAll('a');
   topicLinks.forEach((link) => {
     if (viewedTopics.has(link.id)) {
-      link.classList.remove('font-weight-bold');
-      link.classList.add('font-weight-normal');
-      // link.classList.remove('fw-bold');
-      // link.classList.add('fw-normal');
+      link.classList.remove('fw-bold');
+      link.classList.add('fw-normal');
     }
   });
 };
