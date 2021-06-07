@@ -67,7 +67,6 @@ const createTopicLink = (topic, viewedTopics) => {
 
 const createTopicButton = (topic, i18nObject) => {
   const { topicId } = topic;
-
   const button = document.createElement('button');
   button.classList.add('btn', 'btn-primary');
   button.dataset.id = topicId;
@@ -132,7 +131,6 @@ const renderValidationErrors = (state, value, elements, i18nObject) => {
 };
 
 const renderError = (error, elements, i18nObject) => {
-  console.log('in renderError, error message:', error);
   const { feedbackContainer } = elements;
   feedbackContainer.innerHTML = '';
 

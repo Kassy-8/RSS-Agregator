@@ -13,8 +13,10 @@ const updateRss = (state) => {
 
       const newTopics = topics
         .filter((newTopic) => state.topics.every((topic) => topic.guid !== newTopic.guid));
-
       if (!_.isEmpty(newTopics)) {
+        newTopics.forEach((topic) => {
+          topic.topicId = _.uniqueId();
+        });
         state.topics.unshift(...newTopics);
       }
     })

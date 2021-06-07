@@ -4,11 +4,12 @@ import axios from 'axios';
 import _ from 'lodash';
 import parseRss from './parseRss.js';
 import { messagePath, formStatus } from './constants.js';
+import NetworkError from './NetworkError.js';
 
-const proxyBaseUrl = () => 'https://hexlet-allorigins.herokuapp.com/get';
+const proxyBaseUrl = 'https://hexlet-allorigins.herokuapp.com/get';
 
 export const buildFeedProxyUrl = (link) => {
-  const url = new URL(proxyBaseUrl());
+  const url = new URL(proxyBaseUrl);
   url.searchParams.append('disableCache', true);
   url.searchParams.append('url', link);
   return url;
@@ -48,11 +49,11 @@ export const handleSubmit = (state, elements, event) => {
   const url = buildFeedProxyUrl(feedUrl);
   axios
     .get(url)
+    .catch(() => {
+      throw new NetworkError('Network Error');
+    })
     .then((response) => {
       const rssData = parseRss(response.data.contents);
-      return rssData;
-    })
-    .then((rssData) => {
       const id = _.uniqueId();
       const { title, description, topics } = rssData;
 
@@ -71,14 +72,11 @@ export const handleSubmit = (state, elements, event) => {
       state.feedsUrls.unshift(feedUrl);
     })
     .catch((err) => {
-      // По условию у нас есть два варианта реагирования на ошибки:
-      // - Ресурс не содержит валидный RSS и Ошибка сети.
-      // В случае, если бы нужно было идентифицировать отдельно ошибки парсинга
-      // невалидного html, то можно было попробовать идентифицировать его
-      // так же через заданное сообщение или через установленный флаг.
-      state.error = (err.message === 'Network Error')
-        ? messagePath.networkError
-        : messagePath.parseError;
+      if (err instanceof NetworkError) {
+        state.error = messagePath.networkError;
+      } else {
+        state.error = messagePath.parseError;
+      }
       state.form.status = formStatus.failed;
     });
 };

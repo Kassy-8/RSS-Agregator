@@ -6,7 +6,7 @@ import yupLocale from './locales/yupLocale.js';
 import translation from './locales/ruLocale.js';
 import initView from './view.js';
 import { handleSubmit, handleButton } from './handlers.js';
-import subscriptToFeedsUpdates from './startUpdateRss.js';
+import subscriptToFeedsUpdates from './subscribeRss.js';
 
 export default () => {
   const state = {
