@@ -1,12 +1,12 @@
-import ParsingError from './ParsingError.js';
-
 export default (data) => {
   const domParser = new DOMParser();
   const domObject = domParser.parseFromString(data, 'text/html');
 
   const parseError = domObject.querySelector('parseerror');
   if (parseError) {
-    throw new ParsingError('Unvalid html');
+    const error = new Error('Unvalid html');
+    error.isParseError = true;
+    throw error;
   }
 
   const titleElement = domObject.querySelector('title');

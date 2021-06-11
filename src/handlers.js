@@ -4,7 +4,6 @@ import axios from 'axios';
 import _ from 'lodash';
 import parseRss from './parseRss.js';
 import { messagePath, formStatus } from './constants.js';
-import NetworkError from './NetworkError.js';
 
 const proxyBaseUrl = 'https://hexlet-allorigins.herokuapp.com/get';
 
@@ -50,7 +49,9 @@ export const handleSubmit = (state, elements, event) => {
   axios
     .get(url)
     .catch(() => {
-      throw new NetworkError('Network Error');
+      const networkError = new Error('Network Error');
+      networkError.isNetworkError = true;
+      throw networkError;
     })
     .then((response) => {
       const rssData = parseRss(response.data.contents);
@@ -72,7 +73,7 @@ export const handleSubmit = (state, elements, event) => {
       state.feedsUrls.unshift(feedUrl);
     })
     .catch((err) => {
-      if (err instanceof NetworkError) {
+      if (err.isNetworkError) {
         state.error = messagePath.networkError;
       } else {
         state.error = messagePath.parseError;
