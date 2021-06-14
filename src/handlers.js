@@ -55,8 +55,8 @@ export const handleSubmit = (state, elements, event) => {
     })
     .then((response) => {
       const rssData = parseRss(response.data.contents);
-      const id = _.uniqueId();
       const { title, description, topics } = rssData;
+      const id = _.uniqueId();
 
       const newFeed = {
         id, title, description,
@@ -75,8 +75,10 @@ export const handleSubmit = (state, elements, event) => {
     .catch((err) => {
       if (err.isNetworkError) {
         state.error = messagePath.networkError;
-      } else {
+      } else if (err.isParseError) {
         state.error = messagePath.parseError;
+      } else {
+        state.error = messagePath.otherError;
       }
       state.form.status = formStatus.failed;
     });

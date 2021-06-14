@@ -4,6 +4,7 @@ export const messagePath = {
   duplicateUrl: 'validation.duplicateUrl',
   networkError: 'errors.networkError',
   parseError: 'errors.parseError',
+  otherError: 'errors.otherError',
   successFeedback: 'successFeedback',
 };
 
