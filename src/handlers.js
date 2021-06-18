@@ -75,7 +75,7 @@ export const handleSubmit = (state, elements, event) => {
     .catch((err) => {
       if (err.isNetworkError) {
         state.error = messagePath.networkError;
-      } else if (err.isParseError || err instanceof TypeError) {
+      } else if (err.isParseError) {
         state.error = messagePath.parseError;
       } else {
         state.error = messagePath.otherError;
