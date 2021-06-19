@@ -38,7 +38,7 @@ export default () => {
   };
 
   const i18nInstance = i18next.createInstance();
-  i18nInstance.init({
+  return i18nInstance.init({
     lng: 'ru',
     debug: process.env.NODE_ENV === 'development',
     resources: {

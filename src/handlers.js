@@ -48,11 +48,6 @@ export const handleSubmit = (state, elements, event) => {
   const url = buildFeedProxyUrl(feedUrl);
   axios
     .get(url)
-    .catch(() => {
-      const networkError = new Error('Network Error');
-      networkError.isNetworkError = true;
-      throw networkError;
-    })
     .then((response) => {
       const rssData = parseRss(response.data.contents);
       const { title, description, topics } = rssData;
@@ -73,7 +68,7 @@ export const handleSubmit = (state, elements, event) => {
       state.feedsUrls.unshift(feedUrl);
     })
     .catch((err) => {
-      if (err.isNetworkError) {
+      if (err.isAxiosError) {
         state.error = messagePath.networkError;
       } else if (err.isParseError) {
         state.error = messagePath.parseError;

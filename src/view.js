@@ -189,9 +189,7 @@ export default (state, elements, i18nObject) => {
       'uiState.viewedTopics': () => markViewedTopics(value, elements),
     };
 
-    if (mapping[path]) {
-      mapping[path]();
-    }
+    mapping[path]?.();
   });
 
   return watchedState;

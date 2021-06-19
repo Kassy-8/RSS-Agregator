@@ -27,21 +27,15 @@ const getDataFromRss = (domObject) => {
 };
 
 export default (data) => {
-  const error = new Error();
-  error.isParseError = true;
-
-  const domParser = new DOMParser();
-  const domObject = domParser.parseFromString(data, 'text/html');
-
-  const parseError = domObject.querySelector('parseerror');
-  if (parseError) {
-    throw error;
-  }
-
   try {
+    const domParser = new DOMParser();
+    const domObject = domParser.parseFromString(data, 'text/html');
     const rssData = getDataFromRss(domObject);
+
     return rssData;
   } catch {
+    const error = new Error();
+    error.isParseError = true;
     throw error;
   }
 };
